@@ -7,8 +7,8 @@ use agent_desktop_core::{
 mod imp {
     use super::*;
     use accessibility_sys::{
-        kAXErrorCannotComplete, kAXErrorSuccess, AXUIElementCreateSystemWide,
-        AXUIElementPostKeyboardEvent,
+        AXUIElementCreateSystemWide, AXUIElementPostKeyboardEvent, kAXErrorCannotComplete,
+        kAXErrorSuccess,
     };
     use std::time::Duration;
 

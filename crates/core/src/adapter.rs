@@ -1,4 +1,5 @@
 use crate::{
+    PermissionReport, PermissionState,
     action::{
         ActionRequest, ActionResult, DragParams, ElementState, KeyCombo, MouseEvent, WindowOp,
     },
@@ -6,7 +7,6 @@ use crate::{
     node::{AccessibilityNode, AppInfo, Rect, SurfaceInfo, WindowInfo},
     notification::{NotificationFilter, NotificationIdentity, NotificationInfo},
     refs::RefEntry,
-    PermissionReport, PermissionState,
 };
 use std::marker::PhantomData;
 

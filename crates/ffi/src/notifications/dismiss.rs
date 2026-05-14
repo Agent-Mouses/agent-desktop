@@ -1,7 +1,7 @@
-use crate::convert::string::decode_optional_filter;
-use crate::error::{set_last_error, AdResult};
-use crate::ffi_try::trap_panic;
 use crate::AdAdapter;
+use crate::convert::string::decode_optional_filter;
+use crate::error::{AdResult, set_last_error};
+use crate::ffi_try::trap_panic;
 use std::os::raw::c_char;
 
 /// Dismisses the notification at `index`. Indexes are only valid within
@@ -11,7 +11,7 @@ use std::os::raw::c_char;
 ///
 /// # Safety
 /// `adapter` must be valid. `app_filter` may be null.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_dismiss_notification(
     adapter: *const AdAdapter,
     index: u32,

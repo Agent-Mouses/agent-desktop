@@ -4,15 +4,15 @@ use agent_desktop_core::{action::WindowOp, error::AdapterError, node::WindowInfo
 mod imp {
     use super::*;
     use accessibility_sys::{
-        kAXErrorSuccess, kAXPositionAttribute, kAXSizeAttribute, kAXValueTypeCGPoint,
-        kAXValueTypeCGSize, AXUIElementSetAttributeValue,
+        AXUIElementSetAttributeValue, kAXErrorSuccess, kAXPositionAttribute, kAXSizeAttribute,
+        kAXValueTypeCGPoint, kAXValueTypeCGSize,
     };
     use agent_desktop_core::error::ErrorCode;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
     use core_graphics::geometry::{CGPoint, CGSize};
     use std::ffi::c_void;
 
-    extern "C" {
+    unsafe extern "C" {
         fn AXValueCreate(value_type: u32, value_ptr: *const c_void) -> *mut c_void;
     }
 

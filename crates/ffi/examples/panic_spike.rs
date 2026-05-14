@@ -12,7 +12,7 @@
 
 use std::panic::AssertUnwindSafe;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn spike_panicking_entry() -> i32 {
     std::panic::catch_unwind(AssertUnwindSafe(|| -> i32 {
         panic!("synthetic panic inside extern C fn");

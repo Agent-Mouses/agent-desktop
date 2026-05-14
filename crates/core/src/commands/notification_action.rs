@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, error::AppError, notification::NotificationIdentity};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct NotificationActionArgs {
     pub index: usize,

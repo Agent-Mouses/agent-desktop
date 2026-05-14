@@ -19,7 +19,7 @@ fn default_scroll_direction() -> String {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct TypeArgs {
+pub(crate) struct TypeArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -30,7 +30,7 @@ pub struct TypeArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct SetValueArgs {
+pub(crate) struct SetValueArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -45,7 +45,7 @@ pub struct SetValueArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct SelectArgs {
+pub(crate) struct SelectArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -56,7 +56,7 @@ pub struct SelectArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ScrollArgs {
+pub(crate) struct ScrollArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -75,7 +75,7 @@ pub struct ScrollArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct PressArgs {
+pub(crate) struct PressArgs {
     #[arg(
         value_name = "COMBO",
         help = "Key combo: return, escape, cmd+c, shift+tab ..."
@@ -87,7 +87,7 @@ pub struct PressArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct KeyComboArgs {
+pub(crate) struct KeyComboArgs {
     #[arg(
         value_name = "COMBO",
         help = "Key or modifier to hold/release: shift, cmd, ctrl ..."
@@ -97,7 +97,7 @@ pub struct KeyComboArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct HoverArgs {
+pub(crate) struct HoverArgs {
     #[arg(value_name = "REF", help = "Element ref to hover over")]
     pub ref_id: Option<String>,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -110,7 +110,7 @@ pub struct HoverArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct DragCliArgs {
+pub(crate) struct DragCliArgs {
     #[arg(long, help = "Source element ref")]
     pub from: Option<String>,
     #[arg(long, name = "from-xy", help = "Source coordinates as x,y")]
@@ -127,14 +127,14 @@ pub struct DragCliArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct MouseMoveArgs {
+pub(crate) struct MouseMoveArgs {
     #[arg(long, help = "Absolute coordinates as x,y")]
     pub xy: String,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct MouseClickArgs {
+pub(crate) struct MouseClickArgs {
     #[arg(long, help = "Absolute coordinates as x,y")]
     pub xy: String,
     #[arg(
@@ -151,7 +151,7 @@ pub struct MouseClickArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct MousePointArgs {
+pub(crate) struct MousePointArgs {
     #[arg(long, help = "Absolute coordinates as x,y")]
     pub xy: String,
     #[arg(

@@ -3,8 +3,8 @@ members  = ["crates/core", "crates/macos", "crates/windows", "crates/linux", "cr
 resolver = "2"
 
 [workspace.package]
-edition      = "2021"
-rust-version = "1.78"
+edition      = "2024"
+rust-version = "1.85"
 license      = "Apache-2.0"
 version      = "0.1.14" # x-release-please-version
 
@@ -18,7 +18,28 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 base64             = "0.22"
 rustc-hash         = "2.1"
 libc               = "0.2"
+smallvec           = { version = "1.13", features = ["serde", "union"] }
 agent-desktop-core = { path = "crates/core" }
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+unreachable_pub        = "allow"
+unused_must_use        = "deny"
+let_underscore_drop    = "allow"
+
+[workspace.lints.clippy]
+dbg_macro              = "deny"
+todo                   = "warn"
+needless_collect       = "warn"
+redundant_clone        = "allow"
+unwrap_used            = "allow"
+expect_used            = "allow"
+needless_pass_by_value = "allow"
+manual_let_else        = "allow"
+items_after_statements = "allow"
+collapsible_if         = "allow"
+print_stdout           = "allow"
+print_stderr           = "allow"
 
 [profile.release]
 opt-level     = "z"
@@ -27,8 +48,6 @@ codegen-units = 1
 strip         = true
 panic         = "abort"
 
-# Fast build for CI: skip LTO and size optimisations, keep debug info for
-# better test failure messages. Inherits release settings not listed here.
 [profile.ci]
 inherits      = "release"
 opt-level     = 1
@@ -37,9 +56,6 @@ codegen-units = 16
 strip         = false
 debug         = 1
 
-# Dedicated profile for the FFI cdylib. Overrides panic = "abort" so
-# catch_unwind actually catches at the extern "C" boundary — the CLI
-# release profile stays abort for size reasons.
 [profile.release-ffi]
 inherits = "release"
 panic    = "unwind"

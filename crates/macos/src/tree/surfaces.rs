@@ -1,7 +1,7 @@
+use super::AXElement;
 use super::element::{
     copy_ax_array, copy_bool_attr, copy_element_attr, copy_string_attr, element_for_pid,
 };
-use super::AXElement;
 use agent_desktop_core::node::SurfaceInfo;
 
 #[cfg(target_os = "macos")]

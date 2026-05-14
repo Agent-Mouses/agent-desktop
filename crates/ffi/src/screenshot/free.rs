@@ -6,7 +6,7 @@ use crate::types::AdImageBuffer;
 /// # Safety
 /// `buf` must be null or a pointer previously returned by `ad_screenshot`.
 /// Double-free is undefined behavior.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_free(buf: *mut AdImageBuffer) {
     trap_panic_void(|| unsafe {
         if buf.is_null() {

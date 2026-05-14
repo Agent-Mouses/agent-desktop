@@ -12,7 +12,7 @@ mod imp {
     use crate::tree::AXElement;
     use agent_desktop_core::action::{InteractionPolicy, MouseButton};
 
-    pub static CLICK_CHAIN: ChainDef = ChainDef {
+    pub(crate) static CLICK_CHAIN: ChainDef = ChainDef {
         pre_scroll: true,
         steps: &[
             ChainStep::Custom {
@@ -66,7 +66,7 @@ mod imp {
         suggestion: "Element may not be interactable. Try 'mouse-click --xy X,Y'.",
     };
 
-    pub static RIGHT_CLICK_CHAIN: ChainDef = ChainDef {
+    pub(crate) static RIGHT_CLICK_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::Custom {
@@ -97,7 +97,7 @@ mod imp {
         suggestion: "Try 'mouse-click --button right --xy X,Y'.",
     };
 
-    pub static EXPAND_CHAIN: ChainDef = ChainDef {
+    pub(crate) static EXPAND_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::Action("AXExpand"),
@@ -113,7 +113,7 @@ mod imp {
         suggestion: "Try 'click' to open it instead.",
     };
 
-    pub static COLLAPSE_CHAIN: ChainDef = ChainDef {
+    pub(crate) static COLLAPSE_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::Action("AXCollapse"),
@@ -134,13 +134,13 @@ mod imp {
         ChainStep::FocusThenSetDynamic { attr: "AXValue" },
     ];
 
-    pub static SET_VALUE_CHAIN: ChainDef = ChainDef {
+    pub(crate) static SET_VALUE_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: VALUE_STEPS,
         suggestion: "Try 'clear' then 'type', or check element is a text field.",
     };
 
-    pub static CLEAR_CHAIN: ChainDef = ChainDef {
+    pub(crate) static CLEAR_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::SetDynamic { attr: "AXValue" },
@@ -150,7 +150,7 @@ mod imp {
         suggestion: "Try 'press cmd+a' then 'press delete'.",
     };
 
-    pub static FOCUS_CHAIN: ChainDef = ChainDef {
+    pub(crate) static FOCUS_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::SetBool {
@@ -171,7 +171,7 @@ mod imp {
         suggestion: "Try 'click' to focus the element instead.",
     };
 
-    pub static SCROLL_TO_CHAIN: ChainDef = ChainDef {
+    pub(crate) static SCROLL_TO_CHAIN: ChainDef = ChainDef {
         pre_scroll: false,
         steps: &[
             ChainStep::Action("AXScrollToVisible"),
@@ -183,7 +183,7 @@ mod imp {
         suggestion: "Element may not be in a scrollable container.",
     };
 
-    pub fn double_click(
+    pub(crate) fn double_click(
         el: &AXElement,
         _caps: &ElementCaps,
         policy: InteractionPolicy,
@@ -194,7 +194,7 @@ mod imp {
         crate::actions::dispatch::click_via_bounds(el, MouseButton::Left, 2, policy)
     }
 
-    pub fn triple_click(
+    pub(crate) fn triple_click(
         el: &AXElement,
         _caps: &ElementCaps,
         policy: InteractionPolicy,
@@ -208,6 +208,6 @@ mod imp {}
 
 #[cfg(target_os = "macos")]
 pub(crate) use imp::{
-    double_click, triple_click, CLEAR_CHAIN, CLICK_CHAIN, COLLAPSE_CHAIN, EXPAND_CHAIN,
-    FOCUS_CHAIN, RIGHT_CLICK_CHAIN, SCROLL_TO_CHAIN, SET_VALUE_CHAIN,
+    CLEAR_CHAIN, CLICK_CHAIN, COLLAPSE_CHAIN, EXPAND_CHAIN, FOCUS_CHAIN, RIGHT_CLICK_CHAIN,
+    SCROLL_TO_CHAIN, SET_VALUE_CHAIN, double_click, triple_click,
 };

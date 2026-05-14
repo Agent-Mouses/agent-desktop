@@ -20,95 +20,99 @@ fn direction_from_c(d: AdDirection) -> Direction {
 const MAX_MODIFIERS_PER_COMBO: u32 = 4;
 
 pub(crate) unsafe fn key_combo_from_c(k: &AdKeyCombo) -> Result<CoreKeyCombo, &'static str> {
-    let key = c_to_string(k.key).ok_or("key is null or invalid UTF-8")?;
+    unsafe {
+        let key = c_to_string(k.key).ok_or("key is null or invalid UTF-8")?;
 
-    if k.modifier_count > MAX_MODIFIERS_PER_COMBO {
-        return Err("modifier_count exceeds MAX_MODIFIERS_PER_COMBO (4)");
-    }
-    if k.modifier_count > 0 && k.modifiers.is_null() {
-        return Err("modifier_count > 0 but modifiers pointer is null");
-    }
-
-    let mut modifiers = Vec::with_capacity(k.modifier_count as usize);
-    if k.modifier_count > 0 {
-        let slice = std::slice::from_raw_parts(k.modifiers, k.modifier_count as usize);
-        for raw_modifier in slice {
-            let m = AdModifier::from_c(*raw_modifier).ok_or("invalid modifier discriminant")?;
-            let modifier = match m {
-                AdModifier::Cmd => Modifier::Cmd,
-                AdModifier::Ctrl => Modifier::Ctrl,
-                AdModifier::Alt => Modifier::Alt,
-                AdModifier::Shift => Modifier::Shift,
-            };
-            modifiers.push(modifier);
+        if k.modifier_count > MAX_MODIFIERS_PER_COMBO {
+            return Err("modifier_count exceeds MAX_MODIFIERS_PER_COMBO (4)");
         }
+        if k.modifier_count > 0 && k.modifiers.is_null() {
+            return Err("modifier_count > 0 but modifiers pointer is null");
+        }
+
+        let mut modifiers = Vec::with_capacity(k.modifier_count as usize);
+        if k.modifier_count > 0 {
+            let slice = std::slice::from_raw_parts(k.modifiers, k.modifier_count as usize);
+            for raw_modifier in slice {
+                let m = AdModifier::from_c(*raw_modifier).ok_or("invalid modifier discriminant")?;
+                let modifier = match m {
+                    AdModifier::Cmd => Modifier::Cmd,
+                    AdModifier::Ctrl => Modifier::Ctrl,
+                    AdModifier::Alt => Modifier::Alt,
+                    AdModifier::Shift => Modifier::Shift,
+                };
+                modifiers.push(modifier);
+            }
+        }
+        Ok(CoreKeyCombo { key, modifiers })
     }
-    Ok(CoreKeyCombo { key, modifiers })
 }
 
 pub(crate) unsafe fn action_from_c(action: &AdAction) -> Result<Action, &'static str> {
-    let kind = AdActionKind::from_c(action.kind).ok_or("invalid action kind discriminant")?;
-    match kind {
-        AdActionKind::Click => Ok(Action::Click),
-        AdActionKind::DoubleClick => Ok(Action::DoubleClick),
-        AdActionKind::RightClick => Ok(Action::RightClick),
-        AdActionKind::TripleClick => Ok(Action::TripleClick),
-        AdActionKind::SetFocus => Ok(Action::SetFocus),
-        AdActionKind::Expand => Ok(Action::Expand),
-        AdActionKind::Collapse => Ok(Action::Collapse),
-        AdActionKind::Toggle => Ok(Action::Toggle),
-        AdActionKind::Check => Ok(Action::Check),
-        AdActionKind::Uncheck => Ok(Action::Uncheck),
-        AdActionKind::ScrollTo => Ok(Action::ScrollTo),
-        AdActionKind::Clear => Ok(Action::Clear),
-        AdActionKind::Hover => Ok(Action::Hover),
-        AdActionKind::SetValue => {
-            let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
-            Ok(Action::SetValue(text))
-        }
-        AdActionKind::Select => {
-            let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
-            Ok(Action::Select(text))
-        }
-        AdActionKind::TypeText => {
-            let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
-            Ok(Action::TypeText(text))
-        }
-        AdActionKind::Scroll => {
-            let raw_dir = AdDirection::from_c(action.scroll.direction)
-                .ok_or("invalid scroll direction discriminant")?;
-            let dir = direction_from_c(raw_dir);
-            Ok(Action::Scroll(dir, action.scroll.amount))
-        }
-        AdActionKind::PressKey => {
-            let combo = key_combo_from_c(&action.key)?;
-            Ok(Action::PressKey(combo))
-        }
-        AdActionKind::KeyDown => {
-            let combo = key_combo_from_c(&action.key)?;
-            Ok(Action::KeyDown(combo))
-        }
-        AdActionKind::KeyUp => {
-            let combo = key_combo_from_c(&action.key)?;
-            Ok(Action::KeyUp(combo))
-        }
-        AdActionKind::Drag => {
-            let params = CoreDragParams {
-                from: CorePoint {
-                    x: action.drag.from.x,
-                    y: action.drag.from.y,
-                },
-                to: CorePoint {
-                    x: action.drag.to.x,
-                    y: action.drag.to.y,
-                },
-                duration_ms: if action.drag.duration_ms == 0 {
-                    None
-                } else {
-                    Some(action.drag.duration_ms)
-                },
-            };
-            Ok(Action::Drag(params))
+    unsafe {
+        let kind = AdActionKind::from_c(action.kind).ok_or("invalid action kind discriminant")?;
+        match kind {
+            AdActionKind::Click => Ok(Action::Click),
+            AdActionKind::DoubleClick => Ok(Action::DoubleClick),
+            AdActionKind::RightClick => Ok(Action::RightClick),
+            AdActionKind::TripleClick => Ok(Action::TripleClick),
+            AdActionKind::SetFocus => Ok(Action::SetFocus),
+            AdActionKind::Expand => Ok(Action::Expand),
+            AdActionKind::Collapse => Ok(Action::Collapse),
+            AdActionKind::Toggle => Ok(Action::Toggle),
+            AdActionKind::Check => Ok(Action::Check),
+            AdActionKind::Uncheck => Ok(Action::Uncheck),
+            AdActionKind::ScrollTo => Ok(Action::ScrollTo),
+            AdActionKind::Clear => Ok(Action::Clear),
+            AdActionKind::Hover => Ok(Action::Hover),
+            AdActionKind::SetValue => {
+                let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
+                Ok(Action::SetValue(text))
+            }
+            AdActionKind::Select => {
+                let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
+                Ok(Action::Select(text))
+            }
+            AdActionKind::TypeText => {
+                let text = c_to_string(action.text).ok_or("text is null or invalid UTF-8")?;
+                Ok(Action::TypeText(text))
+            }
+            AdActionKind::Scroll => {
+                let raw_dir = AdDirection::from_c(action.scroll.direction)
+                    .ok_or("invalid scroll direction discriminant")?;
+                let dir = direction_from_c(raw_dir);
+                Ok(Action::Scroll(dir, action.scroll.amount))
+            }
+            AdActionKind::PressKey => {
+                let combo = key_combo_from_c(&action.key)?;
+                Ok(Action::PressKey(combo))
+            }
+            AdActionKind::KeyDown => {
+                let combo = key_combo_from_c(&action.key)?;
+                Ok(Action::KeyDown(combo))
+            }
+            AdActionKind::KeyUp => {
+                let combo = key_combo_from_c(&action.key)?;
+                Ok(Action::KeyUp(combo))
+            }
+            AdActionKind::Drag => {
+                let params = CoreDragParams {
+                    from: CorePoint {
+                        x: action.drag.from.x,
+                        y: action.drag.from.y,
+                    },
+                    to: CorePoint {
+                        x: action.drag.to.x,
+                        y: action.drag.to.y,
+                    },
+                    duration_ms: if action.drag.duration_ms == 0 {
+                        None
+                    } else {
+                        Some(action.drag.duration_ms)
+                    },
+                };
+                Ok(Action::Drag(params))
+            }
         }
     }
 }

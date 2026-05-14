@@ -92,20 +92,22 @@ fn running_apps_from_workspace() -> Vec<AppInfo> {
     type Sel = *mut c_void;
 
     #[link(name = "AppKit", kind = "framework")]
-    extern "C" {
+    unsafe extern "C" {
         fn objc_getClass(name: *const core::ffi::c_char) -> Class;
         fn sel_registerName(name: *const core::ffi::c_char) -> Sel;
         fn objc_msgSend(receiver: Id, sel: Sel, ...) -> Id;
     }
 
     unsafe fn ns_string(id: Id) -> Option<String> {
-        if id.is_null() {
-            return None;
+        unsafe {
+            if id.is_null() {
+                return None;
+            }
+            Some(
+                CFString::wrap_under_get_rule(id as core_foundation_sys::string::CFStringRef)
+                    .to_string(),
+            )
         }
-        Some(
-            CFString::wrap_under_get_rule(id as core_foundation_sys::string::CFStringRef)
-                .to_string(),
-        )
     }
 
     unsafe {
@@ -184,7 +186,7 @@ fn appkit_loaded() -> bool {
 
     type Id = *mut c_void;
 
-    extern "C" {
+    unsafe extern "C" {
         fn dlopen(filename: *const core::ffi::c_char, flag: i32) -> Id;
     }
 
@@ -224,7 +226,7 @@ fn apps_from_cg_windows() -> Vec<AppInfo> {
         string::CFString,
     };
 
-    extern "C" {
+    unsafe extern "C" {
         fn CGWindowListCopyWindowInfo(option: u32, window_id: u32) -> CFTypeRef;
     }
 

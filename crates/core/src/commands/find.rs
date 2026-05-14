@@ -2,7 +2,7 @@ use crate::{
     adapter::PlatformAdapter, commands::search_text, error::AppError, node::AccessibilityNode,
     snapshot,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 const DEFAULT_LIMIT: usize = 50;
 

@@ -1,11 +1,11 @@
 use crate::{
+    PermissionReport,
     adapter::PlatformAdapter,
     commands::permissions::{self, PermissionsArgs},
     error::AppError,
     refs_store::RefStore,
-    PermissionReport,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub fn execute(adapter: &dyn PlatformAdapter) -> Result<Value, AppError> {
     let report = adapter.permission_report();

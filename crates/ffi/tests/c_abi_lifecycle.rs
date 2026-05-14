@@ -1,10 +1,10 @@
 mod common;
 
 use common::{
+    AdAppList, AdFindQuery, AdNativeHandle, AdResult, AdWindowInfo, AdWindowList, CStr,
     ad_adapter_create, ad_adapter_destroy, ad_app_list_count, ad_app_list_free, ad_app_list_get,
     ad_check_permissions, ad_find, ad_free_handle, ad_last_error_code, ad_last_error_message,
     ad_list_apps, ad_list_windows, ad_window_list_count, ad_window_list_free, with_adapter,
-    AdAppList, AdFindQuery, AdNativeHandle, AdResult, AdWindowInfo, AdWindowList, CStr,
 };
 
 #[test]

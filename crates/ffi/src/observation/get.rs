@@ -1,8 +1,8 @@
+use crate::AdAdapter;
 use crate::convert::string::{c_to_string, string_to_c_lossy};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::AdNativeHandle;
-use crate::AdAdapter;
 use agent_desktop_core::adapter::NativeHandle;
 use std::os::raw::c_char;
 
@@ -20,7 +20,7 @@ use std::os::raw::c_char;
 /// `adapter` must be valid. `handle` must be a non-null `AdNativeHandle`.
 /// `property` must be a non-null UTF-8 C string. `out` must be a valid
 /// writable `*mut *mut c_char`; it is null-initialized on entry.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_get(
     adapter: *const AdAdapter,
     handle: *const AdNativeHandle,

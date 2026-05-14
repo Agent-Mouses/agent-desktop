@@ -5,12 +5,12 @@ use agent_desktop_core::{
 };
 use rustc_hash::FxHashSet;
 
+use super::AXElement;
 use super::builder::window_element_for;
 use super::element::{
     child_attributes, copy_ax_array, copy_element_attr, copy_string_attr, element_for_pid,
     resolve_element_name,
 };
-use super::AXElement;
 
 #[cfg(target_os = "macos")]
 pub fn resolve_element_impl(entry: &RefEntry) -> Result<NativeHandle, AdapterError> {
@@ -302,7 +302,7 @@ mod tests {
             source_app: None,
             source_window_title: None,
             root_ref: root_ref.map(String::from),
-            path: vec![0, 1],
+            path: smallvec::smallvec![0, 1],
         }
     }
 

@@ -6,17 +6,17 @@ const SCREEN_RECORDING_SUGGESTION: &str = "Open System Settings > Privacy & Secu
 #[cfg(target_os = "macos")]
 mod imp {
     use accessibility_sys::{
-        kAXTrustedCheckOptionPrompt, AXIsProcessTrusted, AXIsProcessTrustedWithOptions,
+        AXIsProcessTrusted, AXIsProcessTrustedWithOptions, kAXTrustedCheckOptionPrompt,
     };
     use core_foundation::{
         base::TCFType, boolean::CFBoolean, dictionary::CFDictionary, string::CFString,
     };
 
-    pub fn is_trusted() -> bool {
+    pub(super) fn is_trusted() -> bool {
         unsafe { AXIsProcessTrusted() }
     }
 
-    pub fn request_trust() -> bool {
+    pub(super) fn request_trust() -> bool {
         unsafe {
             let key = CFString::wrap_under_get_rule(kAXTrustedCheckOptionPrompt);
             let val = CFBoolean::true_value();
@@ -26,16 +26,16 @@ mod imp {
     }
 
     #[link(name = "CoreGraphics", kind = "framework")]
-    extern "C" {
+    unsafe extern "C" {
         fn CGPreflightScreenCaptureAccess() -> bool;
         fn CGRequestScreenCaptureAccess() -> bool;
     }
 
-    pub fn screen_recording_granted() -> bool {
+    pub(super) fn screen_recording_granted() -> bool {
         unsafe { CGPreflightScreenCaptureAccess() }
     }
 
-    pub fn request_screen_recording() -> bool {
+    pub(super) fn request_screen_recording() -> bool {
         unsafe { CGRequestScreenCaptureAccess() }
     }
 }

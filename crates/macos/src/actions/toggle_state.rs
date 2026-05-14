@@ -6,7 +6,7 @@ use agent_desktop_core::{
 use crate::{
     actions::{
         ax_helpers,
-        chain::{execute_chain, ChainContext},
+        chain::{ChainContext, execute_chain},
         chain_defs, discovery,
     },
     tree::AXElement,

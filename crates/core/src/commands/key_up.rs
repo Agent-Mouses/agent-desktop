@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, commands::press::parse_combo, error::AppError};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct KeyUpArgs {
     pub combo: String,

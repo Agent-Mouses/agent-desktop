@@ -1,6 +1,6 @@
 use crate::{
     error::{AdapterError, AppError},
-    refs::{home_dir, new_snapshot_id, validate_snapshot_id, write_private_file, RefMap},
+    refs::{RefMap, home_dir, new_snapshot_id, validate_snapshot_id, write_private_file},
     refs_lock::RefStoreLock,
 };
 use std::io::Read;

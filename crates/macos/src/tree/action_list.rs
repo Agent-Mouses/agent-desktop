@@ -1,5 +1,5 @@
-use super::capabilities::{copy_action_names, is_attr_settable};
 use super::AXElement;
+use super::capabilities::{copy_action_names, is_attr_settable};
 
 #[cfg(target_os = "macos")]
 use accessibility_sys::{kAXFocusedAttribute, kAXValueAttribute};

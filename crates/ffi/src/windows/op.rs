@@ -1,8 +1,8 @@
-use crate::error::{set_last_error, AdResult};
+use crate::AdAdapter;
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdWindowInfo, AdWindowOp, AdWindowOpKind};
 use crate::windows::to_core::ad_window_to_core;
-use crate::AdAdapter;
 use agent_desktop_core::action::WindowOp;
 
 /// Performs a window-manager operation (`Resize`, `Move`, `Minimize`,
@@ -15,7 +15,7 @@ use agent_desktop_core::action::WindowOp;
 /// # Safety
 /// `adapter` and `win` must be non-null pointers. `win.id` and
 /// `win.title` must be non-null valid UTF-8 C strings.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_window_op(
     adapter: *const AdAdapter,
     win: *const AdWindowInfo,

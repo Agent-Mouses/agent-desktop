@@ -1,6 +1,6 @@
-use crate::error::{set_last_error_static, AdResult};
+use crate::error::{AdResult, set_last_error_static};
 use std::ffi::CStr;
-use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::panic::{AssertUnwindSafe, catch_unwind};
 
 static PANIC_MESSAGE: &CStr = c"rust panic in FFI boundary";
 

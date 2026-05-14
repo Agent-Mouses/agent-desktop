@@ -17,7 +17,7 @@ mod imp {
     const DEFAULT_CHAIN_TIMEOUT: Duration = Duration::from_secs(10);
     const MAX_CHAIN_TIMEOUT_MS: u64 = 300_000;
 
-    pub fn execute_chain(
+    pub(crate) fn execute_chain(
         el: &AXElement,
         caps: &ElementCaps,
         def: &ChainDef,

@@ -2,7 +2,7 @@ use crate::{
     action::ElementState, adapter::PlatformAdapter, commands::helpers::resolve_ref,
     error::AppError, refs::RefEntry,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct IsArgs {
     pub ref_id: String,
@@ -130,7 +130,7 @@ mod tests {
             source_app: None,
             source_window_title: None,
             root_ref: None,
-            path: Vec::new(),
+            path: smallvec::SmallVec::new(),
         }
     }
 
@@ -252,7 +252,7 @@ mod tests {
             source_app: None,
             source_window_title: None,
             root_ref: None,
-            path: Vec::new(),
+            path: smallvec::SmallVec::new(),
         });
         let adapter = LiveStateAdapter {
             state: Mutex::new(None),

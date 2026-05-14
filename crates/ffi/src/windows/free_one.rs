@@ -16,7 +16,7 @@ use crate::types::AdWindowInfo;
 /// `win` must be null or point to a valid `AdWindowInfo` whose string
 /// fields were allocated by this crate. Do not call on pointers inside
 /// an `AdWindowList` — free the list instead.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_release_window_fields(win: *mut AdWindowInfo) {
     trap_panic_void(|| unsafe {
         if win.is_null() {

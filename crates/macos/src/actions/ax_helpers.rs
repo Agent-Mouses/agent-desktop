@@ -5,9 +5,9 @@ mod imp {
     use super::*;
     use crate::tree::AXElement;
     use accessibility_sys::{
-        kAXErrorAPIDisabled, kAXErrorCannotComplete, kAXErrorSuccess, kAXFocusedAttribute,
-        kAXValueAttribute, AXUIElementCopyActionNames, AXUIElementIsAttributeSettable,
-        AXUIElementPerformAction, AXUIElementSetAttributeValue, AXUIElementSetMessagingTimeout,
+        AXUIElementCopyActionNames, AXUIElementIsAttributeSettable, AXUIElementPerformAction,
+        AXUIElementSetAttributeValue, AXUIElementSetMessagingTimeout, kAXErrorAPIDisabled,
+        kAXErrorCannotComplete, kAXErrorSuccess, kAXFocusedAttribute, kAXValueAttribute,
     };
     use core_foundation::{
         array::CFArray,
@@ -17,17 +17,20 @@ mod imp {
     };
     use std::os::raw::c_uchar;
 
-    pub fn try_ax_action(el: &AXElement, name: &str) -> bool {
+    pub(crate) fn try_ax_action(el: &AXElement, name: &str) -> bool {
         let action = CFString::new(name);
         let err = unsafe { AXUIElementPerformAction(el.0, action.as_concrete_TypeRef()) };
         err == kAXErrorSuccess
     }
 
-    pub fn try_ax_action_retried(el: &AXElement, name: &str) -> bool {
+    pub(crate) fn try_ax_action_retried(el: &AXElement, name: &str) -> bool {
         try_ax_action_retried_or_err(el, name).unwrap_or(false)
     }
 
-    pub fn try_ax_action_retried_or_err(el: &AXElement, name: &str) -> Result<bool, AdapterError> {
+    pub(crate) fn try_ax_action_retried_or_err(
+        el: &AXElement,
+        name: &str,
+    ) -> Result<bool, AdapterError> {
         let action = CFString::new(name);
         let err = unsafe { AXUIElementPerformAction(el.0, action.as_concrete_TypeRef()) };
         if err == kAXErrorSuccess {
@@ -46,11 +49,11 @@ mod imp {
         Ok(false)
     }
 
-    pub fn set_ax_bool(el: &AXElement, attr: &str, value: bool) -> bool {
+    pub(crate) fn set_ax_bool(el: &AXElement, attr: &str, value: bool) -> bool {
         set_ax_bool_or_err(el, attr, value).unwrap_or(false)
     }
 
-    pub fn set_ax_bool_or_err(
+    pub(crate) fn set_ax_bool_or_err(
         el: &AXElement,
         attr: &str,
         value: bool,
@@ -71,7 +74,7 @@ mod imp {
         Ok(false)
     }
 
-    pub fn set_ax_string_or_err(
+    pub(crate) fn set_ax_string_or_err(
         el: &AXElement,
         attr: &str,
         value: &str,
@@ -92,7 +95,7 @@ mod imp {
         Ok(())
     }
 
-    pub fn is_attr_settable(el: &AXElement, attr: &str) -> bool {
+    pub(crate) fn is_attr_settable(el: &AXElement, attr: &str) -> bool {
         let cf_attr = CFString::new(attr);
         let mut settable: c_uchar = 0;
         let err = unsafe {
@@ -101,7 +104,7 @@ mod imp {
         err == kAXErrorSuccess && settable != 0
     }
 
-    pub fn list_ax_actions(el: &AXElement) -> Vec<String> {
+    pub(crate) fn list_ax_actions(el: &AXElement) -> Vec<String> {
         let mut actions_ref: core_foundation_sys::array::CFArrayRef = std::ptr::null();
         let err = unsafe { AXUIElementCopyActionNames(el.0, &mut actions_ref) };
         if err != kAXErrorSuccess || actions_ref.is_null() {
@@ -117,11 +120,15 @@ mod imp {
         result
     }
 
-    pub fn has_ax_action(el: &AXElement, target: &str) -> bool {
+    pub(crate) fn has_ax_action(el: &AXElement, target: &str) -> bool {
         list_ax_actions(el).iter().any(|a| a == target)
     }
 
-    pub fn try_action_from_list(el: &AXElement, actions: &[String], targets: &[&str]) -> bool {
+    pub(crate) fn try_action_from_list(
+        el: &AXElement,
+        actions: &[String],
+        targets: &[&str],
+    ) -> bool {
         for target in targets {
             if actions.iter().any(|a| a == target) && try_ax_action(el, target) {
                 return true;
@@ -130,7 +137,11 @@ mod imp {
         false
     }
 
-    pub fn try_each_child(el: &AXElement, f: impl Fn(&AXElement) -> bool, limit: usize) -> bool {
+    pub(crate) fn try_each_child(
+        el: &AXElement,
+        f: impl Fn(&AXElement) -> bool,
+        limit: usize,
+    ) -> bool {
         let children = crate::tree::copy_ax_array(el, "AXChildren").unwrap_or_default();
         for child in children.iter().take(limit) {
             if f(child) {
@@ -140,7 +151,11 @@ mod imp {
         false
     }
 
-    pub fn try_each_ancestor(el: &AXElement, f: impl Fn(&AXElement) -> bool, limit: usize) -> bool {
+    pub(crate) fn try_each_ancestor(
+        el: &AXElement,
+        f: impl Fn(&AXElement) -> bool,
+        limit: usize,
+    ) -> bool {
         let mut current = crate::tree::copy_element_attr(el, "AXParent");
         for _ in 0..limit {
             let ancestor = match &current {
@@ -155,28 +170,28 @@ mod imp {
         false
     }
 
-    pub fn ensure_visible(el: &AXElement) {
+    pub(crate) fn ensure_visible(el: &AXElement) {
         let action = CFString::new("AXScrollToVisible");
         unsafe { AXUIElementPerformAction(el.0, action.as_concrete_TypeRef()) };
     }
 
-    pub fn set_messaging_timeout(el: &AXElement, seconds: f32) {
+    pub(crate) fn set_messaging_timeout(el: &AXElement, seconds: f32) {
         unsafe { AXUIElementSetMessagingTimeout(el.0, seconds) };
     }
 
-    pub fn ax_focus_or_err(el: &AXElement) -> Result<bool, AdapterError> {
+    pub(crate) fn ax_focus_or_err(el: &AXElement) -> Result<bool, AdapterError> {
         set_ax_bool_or_err(el, kAXFocusedAttribute, true)
     }
 
-    pub fn ax_set_value(el: &AXElement, val: &str) -> Result<(), AdapterError> {
+    pub(crate) fn ax_set_value(el: &AXElement, val: &str) -> Result<(), AdapterError> {
         set_ax_string_or_err(el, kAXValueAttribute, val)
     }
 
-    pub fn ax_press(el: &AXElement) -> bool {
+    pub(crate) fn ax_press(el: &AXElement) -> bool {
         try_ax_action(el, "AXPress")
     }
 
-    pub fn element_role(el: &AXElement) -> Option<String> {
+    pub(crate) fn element_role(el: &AXElement) -> Option<String> {
         use accessibility_sys::kAXRoleAttribute;
         crate::tree::copy_string_attr(el, kAXRoleAttribute)
             .map(|r| crate::tree::roles::ax_role_to_str(&r).to_string())

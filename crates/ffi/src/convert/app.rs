@@ -13,10 +13,12 @@ pub(crate) fn app_info_to_c(a: &AppInfo) -> AdAppInfo {
 }
 
 pub(crate) unsafe fn free_app_info_fields(a: &mut AdAppInfo) {
-    free_c_string(a.name as *mut c_char);
-    free_c_string(a.bundle_id as *mut c_char);
-    a.name = ptr::null();
-    a.bundle_id = ptr::null();
+    unsafe {
+        free_c_string(a.name as *mut c_char);
+        free_c_string(a.bundle_id as *mut c_char);
+        a.name = ptr::null();
+        a.bundle_id = ptr::null();
+    }
 }
 
 #[cfg(test)]

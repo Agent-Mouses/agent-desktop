@@ -57,7 +57,7 @@ fn snapshot_id() -> String {
         source_app: None,
         source_window_title: None,
         root_ref: None,
-        path: Vec::new(),
+        path: smallvec::SmallVec::new(),
     });
     RefStore::new().unwrap().save_new_snapshot(&refmap).unwrap()
 }

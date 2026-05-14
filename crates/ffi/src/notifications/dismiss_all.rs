@@ -1,10 +1,10 @@
+use crate::AdAdapter;
 use crate::convert::notification::notification_info_to_c;
 use crate::convert::string::decode_optional_filter;
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::notifications::list::ad_notification_list_free;
 use crate::types::{AdNotificationInfo, AdNotificationList};
-use crate::AdAdapter;
 use std::os::raw::c_char;
 use std::ptr;
 
@@ -23,7 +23,7 @@ use std::ptr;
 /// # Safety
 /// `adapter` must be valid. `app_filter` may be null. `dismissed_out`
 /// and `failed_out` must both be valid writable `*mut *mut AdNotificationList`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_dismiss_all_notifications(
     adapter: *const AdAdapter,
     app_filter: *const c_char,
@@ -86,7 +86,7 @@ pub unsafe extern "C" fn ad_dismiss_all_notifications(
 /// # Safety
 /// Both arguments must be null or pointers from
 /// `ad_dismiss_all_notifications`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_dismiss_all_notifications_free(
     dismissed: *mut AdNotificationList,
     failed: *mut AdNotificationList,

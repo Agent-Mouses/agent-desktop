@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, commands::helpers::resolve_app_pid, error::AppError};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct ListSurfacesArgs {
     pub app: Option<String>,

@@ -14,7 +14,7 @@ pub fn pid_from_element(el: &crate::tree::AXElement) -> Option<i32> {
 #[cfg(target_os = "macos")]
 pub fn ensure_app_focused(pid: i32) -> Result<(), AdapterError> {
     tracing::debug!("system: ensure_app_focused pid={pid}");
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
+    use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess};
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
 
     let app_el = crate::tree::element_for_pid(pid);
@@ -43,8 +43,8 @@ pub fn focus_window_impl(win: &WindowInfo) -> Result<(), AdapterError> {
         win.title
     );
     use accessibility_sys::{
-        kAXErrorSuccess, AXUIElementCreateApplication, AXUIElementPerformAction,
-        AXUIElementSetAttributeValue,
+        AXUIElementCreateApplication, AXUIElementPerformAction, AXUIElementSetAttributeValue,
+        kAXErrorSuccess,
     };
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
 
@@ -197,7 +197,7 @@ end tell"#
 
 #[cfg(target_os = "macos")]
 fn try_quit_via_menu_bar(app_el: &crate::tree::AXElement) -> bool {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXErrorSuccess};
     use core_foundation::{base::TCFType, string::CFString};
 
     let Some(menu_bar) = crate::tree::copy_element_attr(app_el, "AXMenuBar") else {

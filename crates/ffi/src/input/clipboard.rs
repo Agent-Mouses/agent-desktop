@@ -1,7 +1,7 @@
+use crate::AdAdapter;
 use crate::convert::string::{c_to_string, free_c_string, string_to_c};
 use crate::error::{self, AdResult};
 use crate::ffi_try::{trap_panic, trap_panic_void};
-use crate::AdAdapter;
 use std::os::raw::c_char;
 
 /// Reads the current clipboard text and writes an owned C string into
@@ -11,7 +11,7 @@ use std::os::raw::c_char;
 /// # Safety
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create`.
 /// `out` must be a non-null writable `*mut *mut c_char`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_get_clipboard(
     adapter: *const AdAdapter,
     out: *mut *mut c_char,
@@ -28,12 +28,10 @@ pub unsafe extern "C" fn ad_get_clipboard(
             Ok(text) => {
                 let c = string_to_c(&text);
                 if c.is_null() {
-                    error::set_last_error(
-                        &agent_desktop_core::error::AdapterError::new(
-                            agent_desktop_core::error::ErrorCode::Internal,
-                            "clipboard text contains an interior NUL and cannot be represented as a C string",
-                        ),
-                    );
+                    error::set_last_error(&agent_desktop_core::error::AdapterError::new(
+                        agent_desktop_core::error::ErrorCode::Internal,
+                        "clipboard text contains an interior NUL and cannot be represented as a C string",
+                    ));
                     return AdResult::ErrInternal;
                 }
                 *out = c;
@@ -53,7 +51,7 @@ pub unsafe extern "C" fn ad_get_clipboard(
 /// # Safety
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create`.
 /// `text` must be a non-null, NUL-terminated UTF-8 C string.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_set_clipboard(
     adapter: *const AdAdapter,
     text: *const c_char,
@@ -88,7 +86,7 @@ pub unsafe extern "C" fn ad_set_clipboard(
 ///
 /// # Safety
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_clear_clipboard(adapter: *const AdAdapter) -> AdResult {
     trap_panic(|| unsafe {
         if let Err(rc) = crate::main_thread::require_main_thread() {
@@ -113,7 +111,7 @@ pub unsafe extern "C" fn ad_clear_clipboard(adapter: *const AdAdapter) -> AdResu
 /// # Safety
 /// `s` must be null or a pointer previously handed out by this crate.
 /// After this call the pointer is invalid and must not be used.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_free_string(s: *mut c_char) {
     trap_panic_void(|| unsafe { free_c_string(s) })
 }

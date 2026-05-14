@@ -5,8 +5,8 @@ use super::AXElement;
 #[cfg(target_os = "macos")]
 pub fn read_bounds(el: &AXElement) -> Option<Rect> {
     use accessibility_sys::{
-        kAXErrorSuccess, kAXPositionAttribute, kAXSizeAttribute, kAXValueTypeCGPoint,
-        kAXValueTypeCGSize, AXUIElementCopyAttributeValue, AXValueGetValue,
+        AXUIElementCopyAttributeValue, AXValueGetValue, kAXErrorSuccess, kAXPositionAttribute,
+        kAXSizeAttribute, kAXValueTypeCGPoint, kAXValueTypeCGSize,
     };
     use core_foundation::{
         base::{CFRelease, CFTypeRef, TCFType},

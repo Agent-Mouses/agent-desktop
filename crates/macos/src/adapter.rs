@@ -1,4 +1,5 @@
 use agent_desktop_core::{
+    PermissionReport,
     action::{ActionRequest, ActionResult, DragParams, ElementState, MouseEvent, WindowOp},
     adapter::{
         ImageBuffer, NativeHandle, PlatformAdapter, ScreenshotTarget, SnapshotSurface, TreeOptions,
@@ -8,7 +9,6 @@ use agent_desktop_core::{
     node::{AccessibilityNode, AppInfo, Rect, SurfaceInfo, WindowInfo},
     notification::{NotificationFilter, NotificationIdentity, NotificationInfo},
     refs::RefEntry,
-    PermissionReport,
 };
 use rustc_hash::FxHashSet;
 

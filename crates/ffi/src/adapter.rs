@@ -1,6 +1,6 @@
 use crate::error::{self, AdResult};
 use crate::ffi_try::{trap_panic, trap_panic_ptr, trap_panic_void};
-use agent_desktop_core::{adapter::PlatformAdapter, PermissionState};
+use agent_desktop_core::{PermissionState, adapter::PlatformAdapter};
 
 pub struct AdAdapter {
     pub(crate) inner: Box<dyn PlatformAdapter>,
@@ -33,7 +33,7 @@ fn build_adapter() -> Box<dyn PlatformAdapter> {
 /// The returned pointer is owned by the caller and must be released with
 /// `ad_adapter_destroy`. Creating and destroying adapters is cheap; the
 /// common pattern is one adapter per process lifetime.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ad_adapter_create() -> *mut AdAdapter {
     trap_panic_ptr(|| {
         let adapter = AdAdapter {
@@ -47,7 +47,7 @@ pub extern "C" fn ad_adapter_create() -> *mut AdAdapter {
 ///
 /// `adapter` must be a pointer returned by `ad_adapter_create`, or null.
 /// After this call the pointer is invalid and must not be used.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_adapter_destroy(adapter: *mut AdAdapter) {
     trap_panic_void(|| {
         if !adapter.is_null() {
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn ad_adapter_destroy(adapter: *mut AdAdapter) {
 ///
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create` that
 /// has not yet been destroyed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_check_permissions(adapter: *const AdAdapter) -> AdResult {
     trap_panic(|| {
         crate::pointer_guard::guard_non_null!(adapter, c"adapter is null");

@@ -42,7 +42,7 @@ pub(crate) fn action_result_to_c(r: &CoreActionResult) -> AdActionResult {
 ///
 /// `result` must be a pointer to an `AdActionResult` previously written by `ad_execute_action`,
 /// or null. After this call all pointers inside the struct are invalid.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_free_action_result(result: *mut AdActionResult) {
     crate::ffi_try::trap_panic_void(|| unsafe {
         if result.is_null() {

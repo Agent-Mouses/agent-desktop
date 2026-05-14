@@ -8,7 +8,7 @@ use crate::{
     refs_store::RefStore,
     snapshot,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
 pub struct WaitArgs {

@@ -1,12 +1,12 @@
 use crate::{
     action::{Action, ActionRequest},
     adapter::{PlatformAdapter, SnapshotSurface, TreeOptions, WindowFilter},
-    commands::helpers::{resolve_ref, RefArgs},
+    commands::helpers::{RefArgs, resolve_ref},
     error::AppError,
     refs::RefEntry,
     snapshot,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub fn execute(args: RefArgs, adapter: &dyn PlatformAdapter) -> Result<Value, AppError> {
     let (entry, handle) = resolve_ref(&args.ref_id, args.snapshot_id.as_deref(), adapter)?;
@@ -180,7 +180,7 @@ mod tests {
             source_app,
             source_window_title: None,
             root_ref: None,
-            path: Vec::new(),
+            path: smallvec::SmallVec::new(),
         });
         RefStore::new().unwrap().save_new_snapshot(&refmap).unwrap()
     }
@@ -223,9 +223,11 @@ mod tests {
         assert_eq!(value["action"], "right_click");
         assert_eq!(value["menu_probe"]["ok"], false);
         assert_eq!(value["menu_probe"]["error"]["code"], "ELEMENT_NOT_FOUND");
-        assert!(value["menu_probe"]["error"]["suggestion"]
-            .as_str()
-            .unwrap()
-            .contains("snapshot --surface menu"));
+        assert!(
+            value["menu_probe"]["error"]["suggestion"]
+                .as_str()
+                .unwrap()
+                .contains("snapshot --surface menu")
+        );
     }
 }

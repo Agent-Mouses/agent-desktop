@@ -1,5 +1,5 @@
 use crate::error::AppError;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct VersionArgs {
     pub json: bool,

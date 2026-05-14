@@ -12,13 +12,13 @@ Examples:
   agent-desktop skills get desktop --full     # Plus every reference
   agent-desktop skills get desktop workflows  # Single reference
   agent-desktop skills path                   # Where skills live")]
-pub struct SkillsArgs {
+pub(crate) struct SkillsArgs {
     #[command(subcommand)]
     pub action: Option<SkillsAction>,
 }
 
 #[derive(Subcommand, Debug)]
-pub enum SkillsAction {
+pub(crate) enum SkillsAction {
     #[command(about = "List bundled skills with summaries (default)")]
     List,
     #[command(about = "Print a skill's markdown to stdout")]
@@ -28,7 +28,7 @@ pub enum SkillsAction {
 }
 
 #[derive(Args, Debug)]
-pub struct SkillsGetArgs {
+pub(crate) struct SkillsGetArgs {
     #[arg(help = "Skill name or alias (desktop, ffi, ...)")]
     pub name: String,
     #[arg(

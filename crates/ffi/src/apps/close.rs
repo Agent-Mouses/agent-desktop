@@ -1,7 +1,7 @@
-use crate::convert::string::c_to_string;
-use crate::error::{set_last_error, AdResult};
-use crate::ffi_try::trap_panic;
 use crate::AdAdapter;
+use crate::convert::string::c_to_string;
+use crate::error::{AdResult, set_last_error};
+use crate::ffi_try::trap_panic;
 use std::os::raw::c_char;
 
 /// Closes the application identified by `id` (bundle id on macOS,
@@ -10,7 +10,7 @@ use std::os::raw::c_char;
 ///
 /// # Safety
 /// `adapter` must be non-null. `id` must be a non-null UTF-8 C string.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_close_app(
     adapter: *const AdAdapter,
     id: *const c_char,

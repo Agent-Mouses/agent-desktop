@@ -14,7 +14,7 @@ fn entry(role: &str, name: Option<&str>) -> RefEntry {
         source_app: None,
         source_window_title: None,
         root_ref: None,
-        path: Vec::new(),
+        path: smallvec::SmallVec::new(),
     }
 }
 
@@ -43,7 +43,7 @@ fn test_get_existing() {
         source_app: Some("Finder".into()),
         source_window_title: Some("Documents".into()),
         root_ref: None,
-        path: Vec::new(),
+        path: smallvec::SmallVec::new(),
     });
     let retrieved = map.get(&ref_id).unwrap();
     assert_eq!(retrieved.pid, 42);
@@ -167,7 +167,7 @@ fn test_save_load_roundtrip_with_home_override() {
         source_app: Some("TestApp".into()),
         source_window_title: Some("Test Window".into()),
         root_ref: None,
-        path: Vec::new(),
+        path: smallvec::SmallVec::new(),
     });
     map.save().expect("save should succeed under HomeGuard");
 
@@ -195,7 +195,7 @@ fn test_refstore_snapshot_roundtrip_and_latest_pointer() {
         source_app: Some("TestApp".into()),
         source_window_title: Some("Test Window".into()),
         root_ref: None,
-        path: Vec::new(),
+        path: smallvec::SmallVec::new(),
     });
 
     let snapshot_id = store.save_new_snapshot(&map).unwrap();

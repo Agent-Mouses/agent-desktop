@@ -1,8 +1,8 @@
+use crate::AdAdapter;
 use crate::convert::app::{app_info_to_c, free_app_info_fields};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::{trap_panic, trap_panic_void};
 use crate::types::{AdAppInfo, AdAppList};
-use crate::AdAdapter;
 use std::ptr;
 
 /// # Safety
@@ -10,7 +10,7 @@ use std::ptr;
 /// `out` must be a valid writable `*mut *mut AdAppList`.
 /// On success, `*out` is a newly-allocated opaque list freed with
 /// `ad_app_list_free`. On error, `*out` is null and last-error is set.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_list_apps(
     adapter: *const AdAdapter,
     out: *mut *mut AdAppList,
@@ -42,7 +42,7 @@ pub unsafe extern "C" fn ad_list_apps(
 
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_apps`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_app_list_count(list: *const AdAppList) -> u32 {
     if list.is_null() {
         return 0;
@@ -56,7 +56,7 @@ pub unsafe extern "C" fn ad_app_list_count(list: *const AdAppList) -> u32 {
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_apps`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_app_list_get(list: *const AdAppList, index: u32) -> *const AdAppInfo {
     if list.is_null() {
         return ptr::null();
@@ -73,7 +73,7 @@ pub unsafe extern "C" fn ad_app_list_get(list: *const AdAppList, index: u32) -> 
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_apps`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_app_list_free(list: *mut AdAppList) {
     trap_panic_void(|| unsafe {
         if list.is_null() {

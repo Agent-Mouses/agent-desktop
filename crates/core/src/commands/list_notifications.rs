@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, error::AppError, notification::NotificationFilter};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct ListNotificationsArgs {
     pub app: Option<String>,

@@ -97,7 +97,7 @@ mod imp {
         }
     }
 
-    extern "C" {
+    unsafe extern "C" {
         fn CGEventSetIntegerValueField(event: *const std::ffi::c_void, field: u32, value: i64);
     }
 
@@ -150,7 +150,7 @@ mod imp {
         tracing::debug!("mouse: scroll at ({x:.0},{y:.0}) dy={dy} dx={dx}");
         use core_graphics::geometry::CGPoint;
 
-        extern "C" {
+        unsafe extern "C" {
             fn CGEventCreateScrollWheelEvent(
                 source: *const std::ffi::c_void,
                 units: u32,

@@ -1,15 +1,15 @@
+use crate::AdAdapter;
 use crate::convert::surface::{free_surface_info_fields, surface_info_to_c};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::{trap_panic, trap_panic_void};
 use crate::types::{AdSurfaceInfo, AdSurfaceList};
-use crate::AdAdapter;
 use std::ptr;
 
 /// # Safety
 /// `adapter` must be valid. `out` must be a valid writable
 /// `*mut *mut AdSurfaceList`. Success produces a list handle freed via
 /// `ad_surface_list_free`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_list_surfaces(
     adapter: *const AdAdapter,
     pid: i32,
@@ -42,7 +42,7 @@ pub unsafe extern "C" fn ad_list_surfaces(
 
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_surfaces`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_surface_list_count(list: *const AdSurfaceList) -> u32 {
     if list.is_null() {
         return 0;
@@ -55,7 +55,7 @@ pub unsafe extern "C" fn ad_surface_list_count(list: *const AdSurfaceList) -> u3
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_surfaces`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_surface_list_get(
     list: *const AdSurfaceList,
     index: u32,
@@ -74,7 +74,7 @@ pub unsafe extern "C" fn ad_surface_list_get(
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_surfaces`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_surface_list_free(list: *mut AdSurfaceList) {
     trap_panic_void(|| unsafe {
         if list.is_null() {

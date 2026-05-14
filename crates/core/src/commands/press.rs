@@ -59,7 +59,7 @@ pub fn parse_combo(s: &str) -> Result<KeyCombo, AppError> {
             other => {
                 return Err(AppError::invalid_input(format!(
                     "Unknown modifier: '{other}'"
-                )))
+                )));
             }
         };
         modifiers.push(modifier);

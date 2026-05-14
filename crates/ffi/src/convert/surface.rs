@@ -13,10 +13,12 @@ pub(crate) fn surface_info_to_c(s: &SurfaceInfo) -> AdSurfaceInfo {
 }
 
 pub(crate) unsafe fn free_surface_info_fields(s: &mut AdSurfaceInfo) {
-    free_c_string(s.kind as *mut c_char);
-    free_c_string(s.title as *mut c_char);
-    s.kind = ptr::null();
-    s.title = ptr::null();
+    unsafe {
+        free_c_string(s.kind as *mut c_char);
+        free_c_string(s.title as *mut c_char);
+        s.kind = ptr::null();
+        s.title = ptr::null();
+    }
 }
 
 #[cfg(test)]

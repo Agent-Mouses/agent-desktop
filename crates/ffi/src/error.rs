@@ -1,6 +1,6 @@
 use agent_desktop_core::error::{AdapterError, ErrorCode};
 use std::cell::RefCell;
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{CStr, CString, c_char};
 
 const fn error_code_variant_count() -> usize {
     let mut count = 0;
@@ -215,7 +215,7 @@ pub(crate) fn last_error_code() -> AdResult {
 /// leaks to Thread B.
 /// Returns the `AdResult` code of the last error on the calling thread,
 /// or `AD_RESULT_OK` if no error has been recorded.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ad_last_error_code() -> AdResult {
     crate::ffi_try::trap_panic(last_error_code)
 }
@@ -224,7 +224,7 @@ pub extern "C" fn ad_last_error_code() -> AdResult {
 /// error has been recorded on the calling thread. The pointer remains
 /// valid across any number of subsequent *successful* FFI calls; only
 /// the next failing call overwrites it.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ad_last_error_message() -> *const c_char {
     crate::ffi_try::trap_panic_const_ptr(|| {
         LAST_ERROR.with(|cell| {
@@ -239,7 +239,7 @@ pub extern "C" fn ad_last_error_message() -> *const c_char {
 /// Returns a borrowed C string with a human-readable suggestion for how
 /// to recover from the last error, or null if the adapter didn't emit
 /// one. Same lifetime rules as `ad_last_error_message`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ad_last_error_suggestion() -> *const c_char {
     crate::ffi_try::trap_panic_const_ptr(|| {
         LAST_ERROR.with(|cell| {
@@ -255,7 +255,7 @@ pub extern "C" fn ad_last_error_suggestion() -> *const c_char {
 /// for the last error (AX error codes, COM HRESULTs, AT-SPI messages,
 /// etc.), or null if the adapter didn't supply one. Same lifetime rules
 /// as `ad_last_error_message`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ad_last_error_platform_detail() -> *const c_char {
     crate::ffi_try::trap_panic_const_ptr(|| {
         LAST_ERROR.with(|cell| {

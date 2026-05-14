@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ListNotificationsCliArgs {
+pub(crate) struct ListNotificationsCliArgs {
     #[arg(long, help = "Filter to notifications from this app")]
     pub app: Option<String>,
     #[arg(long, help = "Filter to notifications containing this text")]
@@ -14,7 +14,7 @@ pub struct ListNotificationsCliArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct DismissNotificationCliArgs {
+pub(crate) struct DismissNotificationCliArgs {
     #[arg(value_name = "INDEX", help = "1-based notification index from list-notifications",
           value_parser = clap::value_parser!(u64).range(1..))]
     pub index: u64,
@@ -24,14 +24,14 @@ pub struct DismissNotificationCliArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct DismissAllNotificationsCliArgs {
+pub(crate) struct DismissAllNotificationsCliArgs {
     #[arg(long, help = "Only dismiss notifications from this app")]
     pub app: Option<String>,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct NotificationActionCliArgs {
+pub(crate) struct NotificationActionCliArgs {
     #[arg(value_name = "INDEX", help = "1-based notification index from list-notifications",
           value_parser = clap::value_parser!(u64).range(1..))]
     pub index: u64,

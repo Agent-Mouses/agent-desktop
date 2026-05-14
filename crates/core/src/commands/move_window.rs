@@ -2,7 +2,7 @@ use crate::{
     action::WindowOp, adapter::PlatformAdapter, commands::helpers::resolve_window_for_app,
     error::AppError,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct MoveWindowArgs {
     pub app: Option<String>,

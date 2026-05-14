@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+smallvec.workspace = true
 agent-desktop-core.workspace = true
 thiserror.workspace          = true
 serde.workspace              = true
@@ -27,3 +28,6 @@ name = "ax_probe"
 required-features = ["dev-tools"]
 
 [build-dependencies]
+
+[lints]
+workspace = true

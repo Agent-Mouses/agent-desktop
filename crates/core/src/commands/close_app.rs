@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, error::AppError};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 const PROTECTED_PROCESSES: &[&str] = &["loginwindow", "windowserver", "dock", "launchd", "finder"];
 

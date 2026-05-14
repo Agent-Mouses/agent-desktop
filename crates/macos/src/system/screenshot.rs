@@ -146,7 +146,7 @@ mod imp {
             string::CFString,
         };
 
-        extern "C" {
+        unsafe extern "C" {
             fn CGWindowListCopyWindowInfo(option: u32, window_id: u32) -> CFTypeRef;
         }
 

@@ -40,7 +40,7 @@ pub(crate) fn ref_entry_from_node(
         source_app: source_app.map(str::to_string),
         source_window_title: source_window_title.map(str::to_string),
         root_ref,
-        path: path.to_vec(),
+        path: smallvec::SmallVec::from_slice(path),
     }
 }
 
@@ -122,7 +122,6 @@ fn allocate_refs_at_path(
     config: &RefAllocConfig,
     path: &mut Vec<usize>,
 ) -> AccessibilityNode {
-    let root_ref_owned = config.root_ref_id.map(str::to_string);
     let is_interactive = INTERACTIVE_ROLES.contains(&node.role.as_str());
 
     if is_interactive {
@@ -131,7 +130,7 @@ fn allocate_refs_at_path(
             config.pid,
             config.source_app,
             config.source_window_title,
-            root_ref_owned.clone(),
+            config.root_ref_id.map(str::to_string),
             path,
         );
         node.ref_id = Some(refmap.allocate(entry));
@@ -304,7 +303,7 @@ mod tests {
 
         let save_ref = out.children[0].ref_id.as_deref().unwrap();
         let open_ref = out.children[1].children[0].ref_id.as_deref().unwrap();
-        assert_eq!(refmap.get(save_ref).unwrap().path, vec![0]);
-        assert_eq!(refmap.get(open_ref).unwrap().path, vec![1, 0]);
+        assert_eq!(refmap.get(save_ref).unwrap().path.as_slice(), [0]);
+        assert_eq!(refmap.get(open_ref).unwrap().path.as_slice(), [1, 0]);
     }
 }

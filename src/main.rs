@@ -15,7 +15,7 @@ mod dispatch_parse;
 use agent_desktop_core::{
     adapter::PlatformAdapter,
     error::AppError,
-    output::{ErrorPayload, Response, ENVELOPE_VERSION},
+    output::{ENVELOPE_VERSION, ErrorPayload, Response},
 };
 use clap::{CommandFactory, Parser};
 use cli::{Cli, Commands};
@@ -157,7 +157,7 @@ fn build_adapter() -> impl agent_desktop_core::adapter::PlatformAdapter {
 }
 
 fn init_tracing(verbose: bool) {
-    use tracing_subscriber::{fmt, EnvFilter};
+    use tracing_subscriber::{EnvFilter, fmt};
     let filter = if verbose { "debug" } else { "warn" };
     fmt()
         .with_env_filter(

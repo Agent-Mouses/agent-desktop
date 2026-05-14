@@ -2,7 +2,7 @@ use agent_desktop_ffi::error::AdResult;
 use std::ffi::CStr;
 
 #[allow(improper_ctypes)]
-extern "C" {
+unsafe extern "C" {
     fn ad_adapter_create() -> *mut agent_desktop_ffi::AdAdapter;
     fn ad_adapter_destroy(adapter: *mut agent_desktop_ffi::AdAdapter);
     fn ad_launch_app(

@@ -10,7 +10,7 @@ mod imp {
     type Class = *mut c_void;
     type Sel = *mut c_void;
 
-    extern "C" {
+    unsafe extern "C" {
         fn objc_getClass(name: *const core::ffi::c_char) -> Class;
         fn sel_registerName(name: *const core::ffi::c_char) -> Sel;
         fn objc_msgSend(receiver: Id, sel: Sel, ...) -> Id;

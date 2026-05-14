@@ -1,8 +1,8 @@
 mod common;
 
 use common::{
-    ad_launch_app, ad_list_windows, ad_resolve_element, c_char, with_adapter, AdNativeHandle,
-    AdRefEntry, AdResult, AdWindowInfo, AdWindowList,
+    AdNativeHandle, AdRefEntry, AdResult, AdWindowInfo, AdWindowList, ad_launch_app,
+    ad_list_windows, ad_resolve_element, c_char, with_adapter,
 };
 
 #[test]

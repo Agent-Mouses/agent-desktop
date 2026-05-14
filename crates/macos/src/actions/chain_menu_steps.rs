@@ -4,11 +4,11 @@ mod imp {
     use crate::tree::AXElement;
     use agent_desktop_core::error::AdapterError;
 
-    pub fn show_menu(el: &AXElement, _caps: &ElementCaps) -> Result<bool, AdapterError> {
+    pub(crate) fn show_menu(el: &AXElement, _caps: &ElementCaps) -> Result<bool, AdapterError> {
         show_menu_on_element(el)
     }
 
-    pub fn show_menu_on_ancestors(
+    pub(crate) fn show_menu_on_ancestors(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -25,7 +25,7 @@ mod imp {
         Ok(false)
     }
 
-    pub fn show_menu_on_children(
+    pub(crate) fn show_menu_on_children(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -41,7 +41,7 @@ mod imp {
         Ok(false)
     }
 
-    pub fn select_then_show_menu(
+    pub(crate) fn select_then_show_menu(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -52,7 +52,7 @@ mod imp {
         show_menu_on_element(el)
     }
 
-    pub fn select_then_selected_items_menu(
+    pub(crate) fn select_then_selected_items_menu(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {

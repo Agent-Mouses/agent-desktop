@@ -1,13 +1,13 @@
 use agent_desktop_core::{
+    PermissionReport,
     adapter::PlatformAdapter,
     commands::batch::BatchCommand,
     error::AppError,
-    output::{ErrorPayload, ENVELOPE_VERSION},
-    PermissionReport,
+    output::{ENVELOPE_VERSION, ErrorPayload},
 };
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
-use serde_json::{json, Map, Value};
+use serde::de::DeserializeOwned;
+use serde_json::{Map, Value, json};
 
 use crate::{
     cli::Commands,
@@ -184,7 +184,7 @@ fn parse_skills(args: Value) -> Result<SkillsArgs, AppError> {
         Some(other) => {
             return Err(AppError::invalid_input(format!(
                 "Unknown skills action '{other}'"
-            )))
+            )));
         }
     };
     Ok(SkillsArgs { action })
@@ -194,7 +194,7 @@ fn parse_skills(args: Value) -> Result<SkillsArgs, AppError> {
 mod tests {
     use super::*;
     use crate::cli_args::Surface;
-    use agent_desktop_core::{adapter::PlatformAdapter, PermissionReport};
+    use agent_desktop_core::{PermissionReport, adapter::PlatformAdapter};
     use clap::CommandFactory;
 
     struct NoopAdapter;
@@ -266,10 +266,12 @@ mod tests {
         assert_eq!(results[0]["version"], ENVELOPE_VERSION);
         assert_eq!(results[0]["command"], "missing");
         assert_eq!(results[0]["error"]["code"], "INVALID_ARGS");
-        assert!(results[0]["error"]["message"]
-            .as_str()
-            .unwrap()
-            .contains("Unknown batch command"));
+        assert!(
+            results[0]["error"]["message"]
+                .as_str()
+                .unwrap()
+                .contains("Unknown batch command")
+        );
     }
 
     #[test]

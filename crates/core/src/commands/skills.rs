@@ -1,5 +1,5 @@
 use crate::error::AppError;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 const SKILL_DESKTOP_MAIN: &str = include_str!("../../../../skills/agent-desktop/SKILL.md");
 const SKILL_DESKTOP_REF_OBSERVATION: &str =
@@ -43,11 +43,26 @@ const SKILLS: &[Skill] = &[
         summary: "Primary guide. Snapshot/ref loop, JSON envelope, 54 commands across observation, interaction, keyboard/mouse, app lifecycle, notifications, clipboard, wait.",
         main: SKILL_DESKTOP_MAIN,
         refs: &[
-            SkillRef { rel_path: "references/commands-observation.md", body: SKILL_DESKTOP_REF_OBSERVATION },
-            SkillRef { rel_path: "references/commands-interaction.md", body: SKILL_DESKTOP_REF_INTERACTION },
-            SkillRef { rel_path: "references/commands-system.md", body: SKILL_DESKTOP_REF_SYSTEM },
-            SkillRef { rel_path: "references/workflows.md", body: SKILL_DESKTOP_REF_WORKFLOWS },
-            SkillRef { rel_path: "references/macos.md", body: SKILL_DESKTOP_REF_MACOS },
+            SkillRef {
+                rel_path: "references/commands-observation.md",
+                body: SKILL_DESKTOP_REF_OBSERVATION,
+            },
+            SkillRef {
+                rel_path: "references/commands-interaction.md",
+                body: SKILL_DESKTOP_REF_INTERACTION,
+            },
+            SkillRef {
+                rel_path: "references/commands-system.md",
+                body: SKILL_DESKTOP_REF_SYSTEM,
+            },
+            SkillRef {
+                rel_path: "references/workflows.md",
+                body: SKILL_DESKTOP_REF_WORKFLOWS,
+            },
+            SkillRef {
+                rel_path: "references/macos.md",
+                body: SKILL_DESKTOP_REF_MACOS,
+            },
         ],
     },
     Skill {
@@ -56,10 +71,22 @@ const SKILLS: &[Skill] = &[
         summary: "Embedding agent-desktop in another process via the C ABI. Build/link, error propagation, handle ownership, threading rules.",
         main: SKILL_FFI_MAIN,
         refs: &[
-            SkillRef { rel_path: "references/build-and-link.md", body: SKILL_FFI_REF_BUILD },
-            SkillRef { rel_path: "references/error-handling.md", body: SKILL_FFI_REF_ERRORS },
-            SkillRef { rel_path: "references/ownership.md", body: SKILL_FFI_REF_OWNERSHIP },
-            SkillRef { rel_path: "references/threading.md", body: SKILL_FFI_REF_THREADING },
+            SkillRef {
+                rel_path: "references/build-and-link.md",
+                body: SKILL_FFI_REF_BUILD,
+            },
+            SkillRef {
+                rel_path: "references/error-handling.md",
+                body: SKILL_FFI_REF_ERRORS,
+            },
+            SkillRef {
+                rel_path: "references/ownership.md",
+                body: SKILL_FFI_REF_OWNERSHIP,
+            },
+            SkillRef {
+                rel_path: "references/threading.md",
+                body: SKILL_FFI_REF_THREADING,
+            },
         ],
     },
 ];

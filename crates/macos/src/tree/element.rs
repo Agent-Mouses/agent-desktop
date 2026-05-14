@@ -15,10 +15,10 @@ mod imp {
     use super::*;
     use crate::tree::ax_element::AXElement;
     use accessibility_sys::{
+        AXUIElementCopyAttributeValue, AXUIElementCopyMultipleAttributeValues,
+        AXUIElementCreateApplication, AXUIElementRef, AXUIElementSetMessagingTimeout,
         kAXDescriptionAttribute, kAXEnabledAttribute, kAXErrorSuccess, kAXRoleAttribute,
-        kAXTitleAttribute, kAXValueAttribute, AXUIElementCopyAttributeValue,
-        AXUIElementCopyMultipleAttributeValues, AXUIElementCreateApplication, AXUIElementRef,
-        AXUIElementSetMessagingTimeout,
+        kAXTitleAttribute, kAXValueAttribute,
     };
     use core_foundation::{
         array::CFArray,

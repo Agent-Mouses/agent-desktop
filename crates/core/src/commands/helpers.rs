@@ -8,7 +8,7 @@ use crate::{
     refs_store::RefStore,
     window_lookup,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct AppArgs {
     pub app: Option<String>,
@@ -137,8 +137,8 @@ mod tests {
     use crate::node::AppInfo;
     use crate::refs::RefMap;
     use crate::refs_test_support::HomeGuard;
-    use std::sync::atomic::{AtomicU32, Ordering};
     use std::sync::Mutex;
+    use std::sync::atomic::{AtomicU32, Ordering};
 
     struct ReleaseCountingAdapter {
         releases: AtomicU32,
@@ -215,7 +215,7 @@ mod tests {
             source_app: None,
             source_window_title: None,
             root_ref: None,
-            path: Vec::new(),
+            path: smallvec::SmallVec::new(),
         }
     }
 

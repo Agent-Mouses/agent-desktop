@@ -1,5 +1,5 @@
-use crate::{adapter::PlatformAdapter, error::AppError, PermissionReport};
-use serde_json::{json, Value};
+use crate::{PermissionReport, adapter::PlatformAdapter, error::AppError};
+use serde_json::{Value, json};
 
 pub struct PermissionsArgs {
     pub request: bool,

@@ -3,7 +3,7 @@ use crate::{
     adapter::PlatformAdapter,
     error::AppError,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct MouseUpArgs {
     pub x: f64,

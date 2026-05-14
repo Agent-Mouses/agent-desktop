@@ -29,7 +29,7 @@ const AFTER_HELP: &str = include_str!("help_after.txt");
     before_help = BEFORE_HELP,
     after_help = AFTER_HELP,
 )]
-pub struct Cli {
+pub(crate) struct Cli {
     #[arg(
         long,
         short = 'v',
@@ -43,7 +43,7 @@ pub struct Cli {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum Commands {
+pub(crate) enum Commands {
     #[command(about = "Capture accessibility tree as structured JSON with @ref IDs")]
     Snapshot(SnapshotArgs),
     #[command(about = "Search elements by role, name, value, or text content")]
@@ -159,7 +159,7 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn name(&self) -> &'static str {
+    pub(crate) fn name(&self) -> &'static str {
         match self {
             Self::Snapshot(_) => "snapshot",
             Self::Find(_) => "find",

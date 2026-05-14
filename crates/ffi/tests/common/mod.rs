@@ -10,7 +10,7 @@ pub use agent_desktop_ffi::{
 pub use std::ffi::CStr;
 pub use std::os::raw::c_char;
 
-extern "C" {
+unsafe extern "C" {
     pub fn ad_adapter_create() -> *mut AdAdapter;
     pub fn ad_adapter_destroy(adapter: *mut AdAdapter);
     pub fn ad_check_permissions(adapter: *const AdAdapter) -> AdResult;

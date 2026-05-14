@@ -17,15 +17,17 @@ pub(crate) fn notification_info_to_c(info: &NotificationInfo) -> AdNotificationI
 }
 
 pub(crate) unsafe fn free_notification_info_fields(info: &mut AdNotificationInfo) {
-    free_c_string(info.app_name as *mut c_char);
-    free_c_string(info.title as *mut c_char);
-    free_c_string(info.body as *mut c_char);
-    free_c_string_array(info.actions, info.action_count);
-    info.app_name = ptr::null();
-    info.title = ptr::null();
-    info.body = ptr::null();
-    info.actions = ptr::null_mut();
-    info.action_count = 0;
+    unsafe {
+        free_c_string(info.app_name as *mut c_char);
+        free_c_string(info.title as *mut c_char);
+        free_c_string(info.body as *mut c_char);
+        free_c_string_array(info.actions, info.action_count);
+        info.app_name = ptr::null();
+        info.title = ptr::null();
+        info.body = ptr::null();
+        info.actions = ptr::null_mut();
+        info.action_count = 0;
+    }
 }
 
 fn strings_to_c_array(strings: &[String]) -> (*mut *mut c_char, u32) {
@@ -41,15 +43,17 @@ fn strings_to_c_array(strings: &[String]) -> (*mut *mut c_char, u32) {
 }
 
 unsafe fn free_c_string_array(arr: *mut *mut c_char, count: u32) {
-    if arr.is_null() {
-        return;
+    unsafe {
+        if arr.is_null() {
+            return;
+        }
+        let slice = std::slice::from_raw_parts_mut(arr, count as usize);
+        for p in slice.iter_mut() {
+            free_c_string(*p);
+        }
+        drop(Box::from_raw(std::ptr::slice_from_raw_parts_mut(
+            arr,
+            count as usize,
+        )));
     }
-    let slice = std::slice::from_raw_parts_mut(arr, count as usize);
-    for p in slice.iter_mut() {
-        free_c_string(*p);
-    }
-    drop(Box::from_raw(std::ptr::slice_from_raw_parts_mut(
-        arr,
-        count as usize,
-    )));
 }

@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, commands::helpers::resolve_ref, error::AppError};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct GetArgs {
     pub ref_id: String,

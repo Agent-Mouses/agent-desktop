@@ -48,7 +48,7 @@ fn try_simple_key_action(
     app_el: accessibility_sys::AXUIElementRef,
     combo: &KeyCombo,
 ) -> Option<Result<ActionResult, AdapterError>> {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXErrorSuccess};
     use core_foundation::{base::TCFType, string::CFString};
 
     if !combo.modifiers.is_empty() {
@@ -76,7 +76,7 @@ fn try_simple_key_action(
 fn get_focused_element(
     app_el: accessibility_sys::AXUIElementRef,
 ) -> Option<crate::tree::AXElement> {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementCopyAttributeValue, AXUIElementRef};
+    use accessibility_sys::{AXUIElementCopyAttributeValue, AXUIElementRef, kAXErrorSuccess};
     use core_foundation::{base::TCFType, string::CFString};
 
     let attr = CFString::new("AXFocusedUIElement");
@@ -94,7 +94,7 @@ fn try_menu_bar_shortcut(
     app_el: &crate::tree::AXElement,
     combo: &KeyCombo,
 ) -> Option<Result<ActionResult, AdapterError>> {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXErrorSuccess};
     use core_foundation::{base::TCFType, string::CFString};
 
     let menu_bar = crate::tree::copy_element_attr(app_el, "AXMenuBar")?;
@@ -137,7 +137,7 @@ fn try_menu_bar_shortcut(
 
 #[cfg(target_os = "macos")]
 fn read_menu_item_modifiers(el: &crate::tree::AXElement) -> u32 {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementCopyAttributeValue};
+    use accessibility_sys::{AXUIElementCopyAttributeValue, kAXErrorSuccess};
     use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
 
     let attr = CFString::new("AXMenuItemCmdModifiers");

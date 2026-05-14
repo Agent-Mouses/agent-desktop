@@ -17,7 +17,7 @@
 //! / `ad_free_string` / `ad_free_action_result` / `ad_free_tree` family.
 //! Those paths touch no AX/Cocoa state and are safe from any thread.
 
-use crate::error::{set_last_error_static, AdResult};
+use crate::error::{AdResult, set_last_error_static};
 use std::ffi::CStr;
 
 static OFF_MAIN_THREAD_MESSAGE: &CStr =

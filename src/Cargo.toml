@@ -29,3 +29,6 @@ path = "main.rs"
 [[test]]
 name = "snapshot_test"
 path = "tests/snapshot_test.rs"
+
+[lints]
+workspace = true

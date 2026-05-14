@@ -1,8 +1,8 @@
-use crate::error::{set_last_error, AdResult};
+use crate::AdAdapter;
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::tree::flatten::flatten_tree;
 use crate::types::{AdNodeTree, AdSnapshotSurface, AdTreeOptions, AdWindowInfo};
-use crate::AdAdapter;
 use agent_desktop_core::adapter::SnapshotSurface;
 use std::ptr;
 
@@ -58,7 +58,7 @@ fn core_surface(s: AdSnapshotSurface) -> SnapshotSurface {
 /// # Safety
 /// All pointers must be non-null. `win.id` and `win.title` must be
 /// valid UTF-8 C strings. `out` must be writable.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_get_tree(
     adapter: *const AdAdapter,
     win: *const AdWindowInfo,

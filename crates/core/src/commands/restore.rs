@@ -1,7 +1,7 @@
 use crate::{
     action::WindowOp,
     adapter::PlatformAdapter,
-    commands::helpers::{window_op_command, AppArgs},
+    commands::helpers::{AppArgs, window_op_command},
     error::AppError,
 };
 use serde_json::Value;

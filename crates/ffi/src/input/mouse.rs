@@ -1,7 +1,7 @@
+use crate::AdAdapter;
 use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdMouseButton, AdMouseEvent, AdMouseEventKind};
-use crate::AdAdapter;
 use agent_desktop_core::action::{
     MouseButton as CoreMouseButton, MouseEvent as CoreMouseEvent,
     MouseEventKind as CoreMouseEventKind, Point as CorePoint,
@@ -22,7 +22,7 @@ pub(crate) fn mouse_button_from_c(b: AdMouseButton) -> CoreMouseButton {
 /// # Safety
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create`.
 /// `event` must be a non-null pointer to a valid `AdMouseEvent`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_mouse_event(
     adapter: *const AdAdapter,
     event: *const AdMouseEvent,

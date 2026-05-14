@@ -4,7 +4,10 @@ mod imp {
     use crate::tree::AXElement;
     use agent_desktop_core::error::AdapterError;
 
-    pub fn do_verified_press(el: &AXElement, caps: &ElementCaps) -> Result<bool, AdapterError> {
+    pub(crate) fn do_verified_press(
+        el: &AXElement,
+        caps: &ElementCaps,
+    ) -> Result<bool, AdapterError> {
         dispatch_verified_press(el, caps, crate::actions::chain_web_steps::is_in_webarea(el))
     }
 
@@ -52,7 +55,10 @@ mod imp {
         Ok(false)
     }
 
-    pub fn try_value_relay(el: &AXElement, _caps: &ElementCaps) -> Result<bool, AdapterError> {
+    pub(crate) fn try_value_relay(
+        el: &AXElement,
+        _caps: &ElementCaps,
+    ) -> Result<bool, AdapterError> {
         if !ax_helpers::list_ax_actions(el).is_empty() {
             return Ok(false);
         }
@@ -119,7 +125,7 @@ mod imp {
         crate::tree::same_element(&owner_window, expected_window)
     }
 
-    pub fn element_is_visible_in_scroll_context(
+    pub(crate) fn element_is_visible_in_scroll_context(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -161,7 +167,7 @@ mod imp {
         x >= outer.x && x <= outer.x + outer.width && y >= outer.y && y <= outer.y + outer.height
     }
 
-    pub fn try_show_alternate_ui(
+    pub(crate) fn try_show_alternate_ui(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -180,7 +186,7 @@ mod imp {
         ))
     }
 
-    pub fn try_parent_row_select(
+    pub(crate) fn try_parent_row_select(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -198,7 +204,7 @@ mod imp {
         ax_helpers::set_ax_bool_or_err(&parent, "AXSelected", true)
     }
 
-    pub fn try_select_containing_item(
+    pub(crate) fn try_select_containing_item(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
@@ -238,7 +244,7 @@ mod imp {
     }
 
     fn set_container_selection(candidate: &AXElement, attr: &str) -> bool {
-        use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
+        use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess};
         use core_foundation::{
             array::CFArray,
             base::{CFRetain, CFType, CFTypeRef, TCFType},
@@ -275,11 +281,11 @@ mod imp {
             .any(|selected| crate::tree::same_element(selected, candidate))
     }
 
-    pub fn try_select_via_parent(
+    pub(crate) fn try_select_via_parent(
         el: &AXElement,
         _caps: &ElementCaps,
     ) -> Result<bool, AdapterError> {
-        use accessibility_sys::{kAXErrorSuccess, kAXRoleAttribute, AXUIElementSetAttributeValue};
+        use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess, kAXRoleAttribute};
         use core_foundation::{
             array::CFArray,
             base::{CFRetain, CFType, CFTypeRef, TCFType},
@@ -311,7 +317,10 @@ mod imp {
         Ok(err == kAXErrorSuccess)
     }
 
-    pub fn try_custom_actions(el: &AXElement, _caps: &ElementCaps) -> Result<bool, AdapterError> {
+    pub(crate) fn try_custom_actions(
+        el: &AXElement,
+        _caps: &ElementCaps,
+    ) -> Result<bool, AdapterError> {
         let has = !crate::tree::copy_ax_array(el, "AXCustomActions")
             .unwrap_or_default()
             .is_empty();

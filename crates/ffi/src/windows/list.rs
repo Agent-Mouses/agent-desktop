@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::convert::string::decode_optional_filter;
 use crate::convert::window::{free_window_info_fields, window_info_to_c};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::{trap_panic, trap_panic_void};
 use crate::types::{AdWindowInfo, AdWindowList};
-use crate::AdAdapter;
 use agent_desktop_core::adapter::WindowFilter;
 use std::os::raw::c_char;
 use std::ptr;
@@ -12,7 +12,7 @@ use std::ptr;
 /// `adapter` must be valid. `out` must be a valid writable
 /// `*mut *mut AdWindowList`. `app_filter` may be null or a C string.
 /// Success produces a list handle freed via `ad_window_list_free`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_list_windows(
     adapter: *const AdAdapter,
     app_filter: *const c_char,
@@ -50,7 +50,7 @@ pub unsafe extern "C" fn ad_list_windows(
 
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_windows`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_window_list_count(list: *const AdWindowList) -> u32 {
     if list.is_null() {
         return 0;
@@ -63,7 +63,7 @@ pub unsafe extern "C" fn ad_window_list_count(list: *const AdWindowList) -> u32 
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_windows`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_window_list_get(
     list: *const AdWindowList,
     index: u32,
@@ -82,7 +82,7 @@ pub unsafe extern "C" fn ad_window_list_get(
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_windows`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_window_list_free(list: *mut AdWindowList) {
     trap_panic_void(|| unsafe {
         if list.is_null() {

@@ -4,7 +4,7 @@ use crate::{
     error::AppError,
     snapshot, snapshot_ref,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct SnapshotArgs {
     pub app: Option<String>,

@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::convert::string::decode_optional_filter;
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::observation::walk::find_first_match;
 use crate::types::{AdFindQuery, AdNativeHandle, AdWindowInfo};
-use crate::AdAdapter;
 use agent_desktop_core::adapter::{SnapshotSurface, TreeOptions};
 use agent_desktop_core::refs::RefEntry;
 
@@ -22,7 +22,7 @@ use agent_desktop_core::refs::RefEntry;
 /// `adapter`, `win`, and `query` must be valid pointers. `out_handle`
 /// must be a valid writable `*mut AdNativeHandle`. On
 /// `AD_RESULT_ERR_ELEMENT_NOT_FOUND` the out-handle is zero-initialized.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_find(
     adapter: *const AdAdapter,
     win: *const AdWindowInfo,
@@ -102,7 +102,7 @@ pub unsafe extern "C" fn ad_find(
             source_app: None,
             source_window_title: Some(core_win.title.clone()),
             root_ref: None,
-            path: Vec::new(),
+            path: smallvec::SmallVec::new(),
         };
         match adapter.inner.resolve_element(&ref_entry) {
             Ok(handle) => {

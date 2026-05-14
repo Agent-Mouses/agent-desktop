@@ -15,7 +15,7 @@ fn default_is_property() -> String {
 
 #[derive(ValueEnum, Clone, Debug, Default, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum Surface {
+pub(crate) enum Surface {
     #[default]
     Window,
     Focused,
@@ -27,7 +27,7 @@ pub enum Surface {
 }
 
 impl Surface {
-    pub fn to_core(&self) -> agent_desktop_core::adapter::SnapshotSurface {
+    pub(crate) fn to_core(&self) -> agent_desktop_core::adapter::SnapshotSurface {
         use agent_desktop_core::adapter::SnapshotSurface;
         match self {
             Self::Window => SnapshotSurface::Window,
@@ -43,7 +43,7 @@ impl Surface {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct SnapshotArgs {
+pub(crate) struct SnapshotArgs {
     #[arg(long, help = "Filter to application by name")]
     pub app: Option<String>,
     #[arg(
@@ -89,7 +89,7 @@ pub struct SnapshotArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct FindArgs {
+pub(crate) struct FindArgs {
     #[arg(long, help = "Filter to application by name")]
     pub app: Option<String>,
     #[arg(
@@ -140,7 +140,7 @@ pub struct FindArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ScreenshotArgs {
+pub(crate) struct ScreenshotArgs {
     #[arg(long, help = "Filter to application by name")]
     pub app: Option<String>,
     #[arg(
@@ -155,7 +155,7 @@ pub struct ScreenshotArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct GetArgs {
+pub(crate) struct GetArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -171,7 +171,7 @@ pub struct GetArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct IsArgs {
+pub(crate) struct IsArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(long, help = "Snapshot ID returned by snapshot; omit to use latest")]
@@ -187,7 +187,7 @@ pub struct IsArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct RefArgs {
+pub(crate) struct RefArgs {
     #[arg(value_name = "REF", help = "Element ref from snapshot (@e1, @e2 ...)")]
     pub ref_id: String,
     #[arg(
@@ -200,7 +200,7 @@ pub struct RefArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ListSurfacesArgs {
+pub(crate) struct ListSurfacesArgs {
     #[arg(long, help = "Filter to application by name")]
     pub app: Option<String>,
 }

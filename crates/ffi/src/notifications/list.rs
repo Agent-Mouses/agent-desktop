@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::convert::notification::{free_notification_info_fields, notification_info_to_c};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::{trap_panic, trap_panic_void};
 use crate::notifications::filter::filter_from_c;
 use crate::types::{AdNotificationFilter, AdNotificationInfo, AdNotificationList};
-use crate::AdAdapter;
 use std::ptr;
 
 /// Lists the notifications currently on-screen.
@@ -17,7 +17,7 @@ use std::ptr;
 /// `adapter` must be valid. `filter` may be null. `out` must be a valid
 /// writable `*mut *mut AdNotificationList`. On success `*out` is a
 /// non-null handle freed with `ad_notification_list_free`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_list_notifications(
     adapter: *const AdAdapter,
     filter: *const AdNotificationFilter,
@@ -58,7 +58,7 @@ pub unsafe extern "C" fn ad_list_notifications(
 
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_notifications`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_notification_list_count(list: *const AdNotificationList) -> u32 {
     if list.is_null() {
         return 0;
@@ -71,7 +71,7 @@ pub unsafe extern "C" fn ad_notification_list_count(list: *const AdNotificationL
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_notifications`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_notification_list_get(
     list: *const AdNotificationList,
     index: u32,
@@ -90,7 +90,7 @@ pub unsafe extern "C" fn ad_notification_list_get(
 ///
 /// # Safety
 /// `list` must be null or a pointer returned by `ad_list_notifications`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_notification_list_free(list: *mut AdNotificationList) {
     trap_panic_void(|| unsafe {
         if list.is_null() {

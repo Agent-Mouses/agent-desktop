@@ -1,4 +1,5 @@
 use agent_desktop_core::{
+    PermissionReport,
     adapter::PlatformAdapter,
     commands::{
         check, clear, click, clipboard_clear, clipboard_get, clipboard_set, close_app, collapse,
@@ -9,7 +10,6 @@ use agent_desktop_core::{
         skills, snapshot, status, toggle, triple_click, type_text, uncheck, version, wait,
     },
     error::AppError,
-    PermissionReport,
 };
 use serde_json::Value;
 
@@ -20,7 +20,7 @@ use crate::dispatch_parse::{
     parse_xy_opt,
 };
 
-pub fn dispatch(
+pub(crate) fn dispatch(
     cmd: Commands,
     adapter: &dyn PlatformAdapter,
     permission_report: &PermissionReport,

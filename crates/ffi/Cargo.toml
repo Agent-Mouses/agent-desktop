@@ -9,6 +9,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+smallvec.workspace = true
 agent-desktop-core.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -23,3 +24,6 @@ agent-desktop-linux = { path = "../linux" }
 
 [build-dependencies]
 cbindgen = "= 0.27.0"
+
+[lints]
+workspace = true

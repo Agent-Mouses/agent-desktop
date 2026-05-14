@@ -30,12 +30,14 @@ pub(crate) fn window_info_to_c(w: &WindowInfo) -> AdWindowInfo {
 }
 
 pub(crate) unsafe fn free_window_info_fields(w: &mut AdWindowInfo) {
-    free_c_string(w.id as *mut c_char);
-    free_c_string(w.title as *mut c_char);
-    free_c_string(w.app_name as *mut c_char);
-    w.id = ptr::null();
-    w.title = ptr::null();
-    w.app_name = ptr::null();
+    unsafe {
+        free_c_string(w.id as *mut c_char);
+        free_c_string(w.title as *mut c_char);
+        free_c_string(w.app_name as *mut c_char);
+        w.id = ptr::null();
+        w.title = ptr::null();
+        w.app_name = ptr::null();
+    }
 }
 
 #[cfg(test)]

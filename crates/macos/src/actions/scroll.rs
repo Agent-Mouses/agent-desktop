@@ -12,7 +12,7 @@ pub(crate) fn ax_scroll(
     policy: agent_desktop_core::action::InteractionPolicy,
 ) -> Result<(), AdapterError> {
     use accessibility_sys::{
-        kAXErrorSuccess, AXUIElementPerformAction, AXUIElementSetAttributeValue,
+        AXUIElementPerformAction, AXUIElementSetAttributeValue, kAXErrorSuccess,
     };
     use agent_desktop_core::action::Direction;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
@@ -157,7 +157,7 @@ fn try_scroll_bar_value_shift(
     direction: &agent_desktop_core::action::Direction,
     amount: u32,
 ) -> bool {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
+    use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess};
     use agent_desktop_core::action::Direction;
     use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
 
@@ -180,7 +180,7 @@ fn try_scroll_bar_value_shift(
 
 #[cfg(target_os = "macos")]
 fn read_scroll_bar_value(bar: &AXElement) -> Option<f64> {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementCopyAttributeValue};
+    use accessibility_sys::{AXUIElementCopyAttributeValue, kAXErrorSuccess};
     use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
 
     let cf_attr = CFString::new("AXValue");
@@ -199,7 +199,7 @@ fn try_scroll_bar_sub_elements(
     bar: &AXElement,
     direction: &agent_desktop_core::action::Direction,
 ) -> bool {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXErrorSuccess};
     use agent_desktop_core::action::Direction;
     use core_foundation::{base::TCFType, string::CFString};
 
@@ -226,7 +226,7 @@ fn try_focus_child_in_direction(
     scroll_area: &AXElement,
     _direction: &agent_desktop_core::action::Direction,
 ) -> bool {
-    use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
+    use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess};
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
 
     let children = crate::tree::copy_ax_array(scroll_area, "AXChildren").unwrap_or_default();
@@ -255,7 +255,7 @@ fn try_select_row_in_direction(
     scroll_area: &AXElement,
     _direction: &agent_desktop_core::action::Direction,
 ) -> bool {
-    use accessibility_sys::{kAXErrorSuccess, kAXRoleAttribute, AXUIElementSetAttributeValue};
+    use accessibility_sys::{AXUIElementSetAttributeValue, kAXErrorSuccess, kAXRoleAttribute};
     use core_foundation::{
         array::CFArray,
         base::{CFRetain, CFType, CFTypeRef, TCFType},

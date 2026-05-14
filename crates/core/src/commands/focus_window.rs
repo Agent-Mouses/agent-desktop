@@ -3,7 +3,7 @@ use crate::{
     error::{AdapterError, AppError, ErrorCode},
     node::WindowInfo,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
 #[cfg(not(test))]

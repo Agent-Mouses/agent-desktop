@@ -1,7 +1,7 @@
-use crate::error::{set_last_error, AdResult};
+use crate::AdAdapter;
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdImageBuffer, AdImageFormat, AdScreenshotKind, AdScreenshotTarget};
-use crate::AdAdapter;
 use agent_desktop_core::adapter::{ImageFormat, ScreenshotTarget as CoreScreenshotTarget};
 use std::ptr;
 
@@ -14,7 +14,7 @@ use std::ptr;
 /// `adapter` and `target` must be valid pointers. `out` must be a valid
 /// writable `*mut *mut AdImageBuffer`. On error `*out` is null and
 /// last-error is set.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_screenshot(
     adapter: *const AdAdapter,
     target: *const AdScreenshotTarget,

@@ -36,16 +36,20 @@ pub(crate) fn opt_string_to_c(s: Option<&str>) -> *mut c_char {
 }
 
 pub(crate) unsafe fn free_c_string(ptr: *mut c_char) {
-    if !ptr.is_null() {
-        drop(CString::from_raw(ptr));
+    unsafe {
+        if !ptr.is_null() {
+            drop(CString::from_raw(ptr));
+        }
     }
 }
 
 pub(crate) unsafe fn c_to_string(ptr: *const c_char) -> Option<String> {
-    if ptr.is_null() {
-        return None;
+    unsafe {
+        if ptr.is_null() {
+            return None;
+        }
+        CStr::from_ptr(ptr).to_str().ok().map(str::to_owned)
     }
-    CStr::from_ptr(ptr).to_str().ok().map(str::to_owned)
 }
 
 /// Tri-state decode of a foreign C string used for optional filter
@@ -62,12 +66,14 @@ pub(crate) unsafe fn c_to_string(ptr: *const c_char) -> Option<String> {
 /// # Safety
 /// `ptr` must be null or a NUL-terminated C string.
 pub(crate) unsafe fn try_c_to_string(ptr: *const c_char) -> Result<Option<String>, ()> {
-    if ptr.is_null() {
-        return Ok(None);
-    }
-    match CStr::from_ptr(ptr).to_str() {
-        Ok(s) => Ok(Some(s.to_owned())),
-        Err(_) => Err(()),
+    unsafe {
+        if ptr.is_null() {
+            return Ok(None);
+        }
+        match CStr::from_ptr(ptr).to_str() {
+            Ok(s) => Ok(Some(s.to_owned())),
+            Err(_) => Err(()),
+        }
     }
 }
 

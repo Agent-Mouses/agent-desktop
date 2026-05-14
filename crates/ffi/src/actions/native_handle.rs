@@ -1,7 +1,7 @@
-use crate::error::{set_last_error, AdResult};
+use crate::AdAdapter;
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::AdNativeHandle;
-use crate::AdAdapter;
 use agent_desktop_core::adapter::NativeHandle;
 
 /// Releases a handle previously returned by `ad_resolve_element` and
@@ -28,7 +28,7 @@ use agent_desktop_core::adapter::NativeHandle;
 /// `handle` must be null or a `*mut AdNativeHandle` previously
 /// populated by `ad_resolve_element`. On return `(*handle).ptr` is
 /// `NULL` so a double-call is a no-op instead of a double-free.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_free_handle(
     adapter: *const AdAdapter,
     handle: *mut AdNativeHandle,

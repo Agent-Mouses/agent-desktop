@@ -2,7 +2,7 @@
 mod imp {
     use crate::tree::AXElement;
     use accessibility_sys::{
-        kAXErrorSuccess, AXUIElementCopyActionNames, AXUIElementIsAttributeSettable,
+        AXUIElementCopyActionNames, AXUIElementIsAttributeSettable, kAXErrorSuccess,
     };
     use core_foundation::{
         array::CFArray,

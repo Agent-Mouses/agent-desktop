@@ -76,7 +76,10 @@ fn probe_app(pid: i32) {
 
             // ── 3. Test kAXPressAction on each child ────────────────────────
             let ax_err = ax_press(*child);
-            println!("                 kAXPressAction → err={} (0=ok, -25200=fail, -25205=not_supported)", ax_err);
+            println!(
+                "                 kAXPressAction → err={} (0=ok, -25200=fail, -25205=not_supported)",
+                ax_err
+            );
 
             // ── 4. Test CGEvent click at element center ─────────────────────
             if let (Some(p), Some(s)) = (cpos, csz) {
@@ -217,11 +220,7 @@ fn read_cgpoint(el: accessibility_sys::AXUIElementRef, attr: &str) -> Option<(f6
         )
     };
     unsafe { core_foundation::base::CFRelease(val) };
-    if ok {
-        Some((pt.x, pt.y))
-    } else {
-        None
-    }
+    if ok { Some((pt.x, pt.y)) } else { None }
 }
 
 #[cfg(target_os = "macos")]

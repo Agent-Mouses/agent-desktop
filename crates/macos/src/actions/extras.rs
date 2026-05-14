@@ -166,7 +166,7 @@ fn menu_opened_after_action(was_open: bool, is_open: bool) -> bool {
 
 #[cfg(target_os = "macos")]
 fn find_and_press_menu_item(el: &AXElement, target_value: &str) -> bool {
-    use accessibility_sys::{kAXPressAction, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXPressAction};
     use core_foundation::{base::TCFType, string::CFString};
 
     let children = crate::tree::copy_ax_array(el, "AXChildren").unwrap_or_default();
@@ -197,7 +197,7 @@ fn press_escape(el: &AXElement) {
 
 #[cfg(target_os = "macos")]
 fn select_child_by_name(el: &AXElement, name: &str) -> bool {
-    use accessibility_sys::{kAXPressAction, AXUIElementPerformAction};
+    use accessibility_sys::{AXUIElementPerformAction, kAXPressAction};
     use core_foundation::{base::TCFType, string::CFString};
 
     let children = crate::tree::copy_ax_array(el, "AXChildren").unwrap_or_default();

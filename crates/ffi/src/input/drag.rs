@@ -1,7 +1,7 @@
+use crate::AdAdapter;
 use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::AdDragParams;
-use crate::AdAdapter;
 use agent_desktop_core::action::{DragParams as CoreDragParams, Point as CorePoint};
 
 /// Synthesizes a mouse drag from `params.from` to `params.to`. When
@@ -11,7 +11,7 @@ use agent_desktop_core::action::{DragParams as CoreDragParams, Point as CorePoin
 /// # Safety
 /// `adapter` must be a non-null pointer returned by `ad_adapter_create`.
 /// `params` must be a non-null pointer to a valid `AdDragParams`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_drag(
     adapter: *const AdAdapter,
     params: *const AdDragParams,

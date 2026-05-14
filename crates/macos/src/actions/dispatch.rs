@@ -11,12 +11,12 @@ mod imp {
     use super::*;
     use crate::actions::{
         ax_helpers,
-        chain::{execute_chain, ChainContext},
+        chain::{ChainContext, execute_chain},
         chain_defs, discovery, toggle_state,
     };
     use crate::tree::AXElement;
 
-    pub fn click_via_bounds(
+    pub(crate) fn click_via_bounds(
         el: &AXElement,
         button: MouseButton,
         count: u32,
@@ -58,7 +58,7 @@ mod imp {
         })
     }
 
-    pub fn perform_action(
+    pub(crate) fn perform_action(
         el: &AXElement,
         request: &ActionRequest,
     ) -> Result<ActionResult, AdapterError> {
@@ -217,7 +217,7 @@ mod imp {
         Ok(result)
     }
 
-    pub fn ax_press_or_fail(el: &AXElement, context: &str) -> Result<(), AdapterError> {
+    pub(crate) fn ax_press_or_fail(el: &AXElement, context: &str) -> Result<(), AdapterError> {
         if !ax_helpers::ax_press(el) {
             return Err(AdapterError::new(
                 ErrorCode::ActionFailed,
@@ -242,7 +242,7 @@ mod imp {
     }
 }
 
-pub use imp::perform_action;
+pub(crate) use imp::perform_action;
 
 #[cfg(target_os = "macos")]
 pub(crate) use imp::{ax_press_or_fail, click_via_bounds};

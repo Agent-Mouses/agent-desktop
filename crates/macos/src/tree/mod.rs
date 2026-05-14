@@ -14,8 +14,8 @@ pub use build_context::TreeBuildContext;
 pub use builder::{build_subtree, window_element_for};
 pub use capabilities::{copy_action_names, is_attr_settable, same_element};
 pub use element::{
-    copy_ax_array, copy_bool_attr, copy_element_attr, copy_i64_attr, copy_string_attr,
-    copy_value_typed, count_children, element_for_pid, resolve_element_name, ABSOLUTE_MAX_DEPTH,
+    ABSOLUTE_MAX_DEPTH, copy_ax_array, copy_bool_attr, copy_element_attr, copy_i64_attr,
+    copy_string_attr, copy_value_typed, count_children, element_for_pid, resolve_element_name,
 };
 pub use element_bounds::read_bounds;
 pub use resolve::{find_element_recursive, resolve_element_impl};

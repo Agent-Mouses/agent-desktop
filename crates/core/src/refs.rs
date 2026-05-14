@@ -1,12 +1,15 @@
 use crate::error::AppError;
 use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 use std::cell::RefCell;
-use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
+use std::collections::hash_map::RandomState;
 use std::hash::BuildHasher;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+pub type RefPath = SmallVec<[usize; 8]>;
 
 pub(crate) const MAX_REFMAP_BYTES: u64 = 1_048_576;
 static SNAPSHOT_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -33,8 +36,8 @@ pub struct RefEntry {
     pub source_window_title: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub root_ref: Option<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub path: Vec<usize>,
+    #[serde(default, skip_serializing_if = "SmallVec::is_empty")]
+    pub path: RefPath,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -9,7 +9,7 @@ use serde_json::Value;
 
 use crate::cli::Commands;
 
-pub fn dispatch_notification(
+pub(crate) fn dispatch_notification(
     cmd: Commands,
     adapter: &dyn PlatformAdapter,
 ) -> Result<Value, AppError> {

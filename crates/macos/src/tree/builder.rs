@@ -1,15 +1,15 @@
 use agent_desktop_core::node::AccessibilityNode;
 use rustc_hash::FxHashSet;
 
+use super::AXElement;
 use super::action_list::platform_available_actions;
 use super::build_context::TreeBuildContext;
 use super::capabilities::same_element;
 use super::element::{
-    child_attributes, copy_ax_array, copy_bool_attr, copy_string_attr, count_children,
-    element_for_pid, fetch_node_attrs, ABSOLUTE_MAX_DEPTH,
+    ABSOLUTE_MAX_DEPTH, child_attributes, copy_ax_array, copy_bool_attr, copy_string_attr,
+    count_children, element_for_pid, fetch_node_attrs,
 };
 use super::element_bounds::read_bounds;
-use super::AXElement;
 
 #[cfg(target_os = "macos")]
 use accessibility_sys::{

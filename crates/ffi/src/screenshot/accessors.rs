@@ -6,7 +6,7 @@ use std::ptr;
 ///
 /// # Safety
 /// `buf` must be null or returned by `ad_screenshot`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_data(buf: *const AdImageBuffer) -> *const u8 {
     if buf.is_null() {
         return ptr::null();
@@ -20,7 +20,7 @@ pub unsafe extern "C" fn ad_image_buffer_data(buf: *const AdImageBuffer) -> *con
 ///
 /// # Safety
 /// `buf` must be null or returned by `ad_screenshot`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_size(buf: *const AdImageBuffer) -> u64 {
     if buf.is_null() {
         return 0;
@@ -33,7 +33,7 @@ pub unsafe extern "C" fn ad_image_buffer_size(buf: *const AdImageBuffer) -> u64 
 ///
 /// # Safety
 /// `buf` must be null or returned by `ad_screenshot`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_width(buf: *const AdImageBuffer) -> u32 {
     if buf.is_null() {
         return 0;
@@ -46,7 +46,7 @@ pub unsafe extern "C" fn ad_image_buffer_width(buf: *const AdImageBuffer) -> u32
 ///
 /// # Safety
 /// `buf` must be null or returned by `ad_screenshot`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_height(buf: *const AdImageBuffer) -> u32 {
     if buf.is_null() {
         return 0;
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn ad_image_buffer_height(buf: *const AdImageBuffer) -> u3
 ///
 /// # Safety
 /// `buf` must be null or returned by `ad_screenshot`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_image_buffer_format(buf: *const AdImageBuffer) -> AdImageFormat {
     if buf.is_null() {
         return AdImageFormat::Png;

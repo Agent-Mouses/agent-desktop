@@ -19,7 +19,7 @@ mod imp {
         }
     }
 
-    pub fn is_in_webarea(el: &AXElement) -> bool {
+    pub(crate) fn is_in_webarea(el: &AXElement) -> bool {
         use accessibility_sys::kAXRoleAttribute;
         let mut current = crate::tree::copy_element_attr(el, "AXParent");
         for _ in 0..20 {
@@ -36,7 +36,7 @@ mod imp {
         false
     }
 
-    pub fn activate_web_element(el: &AXElement) -> bool {
+    pub(crate) fn activate_web_element(el: &AXElement) -> bool {
         let Some(pid) = crate::system::app_ops::pid_from_element(el) else {
             return false;
         };

@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::convert::string::c_to_string;
 use crate::convert::window::window_info_to_c;
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::AdWindowInfo;
-use crate::AdAdapter;
 use std::os::raw::c_char;
 
 /// Launches the application identified by `id` (bundle id on macOS,
@@ -19,7 +19,7 @@ use std::os::raw::c_char;
 /// # Safety
 /// `adapter` must be non-null. `id` must be a non-null UTF-8 C string.
 /// `out` must be a non-null writable `*mut AdWindowInfo`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_launch_app(
     adapter: *const AdAdapter,
     id: *const c_char,

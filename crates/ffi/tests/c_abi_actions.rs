@@ -1,8 +1,8 @@
 mod common;
 
 use common::{
-    ad_execute_action, ad_execute_action_with_policy, default_action, with_adapter, AdActionResult,
-    AdNativeHandle, AdPolicyKind, AdResult,
+    AdActionResult, AdNativeHandle, AdPolicyKind, AdResult, ad_execute_action,
+    ad_execute_action_with_policy, default_action, with_adapter,
 };
 
 #[test]

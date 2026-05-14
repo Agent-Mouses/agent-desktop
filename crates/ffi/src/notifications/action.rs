@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::actions::result::action_result_to_c;
 use crate::convert::string::{c_to_string, decode_optional_filter};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::AdActionResult;
-use crate::AdAdapter;
 use agent_desktop_core::notification::NotificationIdentity;
 use std::os::raw::c_char;
 
@@ -34,7 +34,7 @@ use std::os::raw::c_char;
 /// is rejected with `AD_RESULT_ERR_INVALID_ARGS` rather than silently
 /// treated as "no fingerprint". `out` must be a valid writable
 /// `*mut AdActionResult`; on error it is zero-initialized.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_notification_action(
     adapter: *const AdAdapter,
     index: u32,

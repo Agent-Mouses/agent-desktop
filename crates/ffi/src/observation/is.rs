@@ -1,8 +1,8 @@
+use crate::AdAdapter;
 use crate::convert::string::{c_to_string, decode_optional_filter};
-use crate::error::{set_last_error, AdResult};
+use crate::error::{AdResult, set_last_error};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdFindQuery, AdWindowInfo};
-use crate::AdAdapter;
 use agent_desktop_core::adapter::{SnapshotSurface, TreeOptions};
 use agent_desktop_core::node::AccessibilityNode;
 use std::os::raw::c_char;
@@ -36,7 +36,7 @@ use std::os::raw::c_char;
 /// # Safety
 /// All pointers must be valid. `property` must be a non-null UTF-8
 /// C string. `out` must be a valid writable `*mut bool`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_is(
     adapter: *const AdAdapter,
     win: *const AdWindowInfo,

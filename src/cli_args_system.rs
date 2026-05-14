@@ -11,7 +11,7 @@ fn default_wait_timeout() -> u64 {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct LaunchArgs {
+pub(crate) struct LaunchArgs {
     #[arg(value_name = "APP", help = "Application name or bundle ID")]
     pub app: String,
     #[arg(
@@ -25,7 +25,7 @@ pub struct LaunchArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CloseAppArgs {
+pub(crate) struct CloseAppArgs {
     #[arg(value_name = "APP", help = "Application name")]
     pub app: String,
     #[arg(long, help = "Force-kill the process instead of quitting gracefully")]
@@ -35,21 +35,21 @@ pub struct CloseAppArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ListWindowsArgs {
+pub(crate) struct ListWindowsArgs {
     #[arg(long, help = "Filter running apps by case-insensitive name substring")]
     pub app: Option<String>,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ListAppsArgs {
+pub(crate) struct ListAppsArgs {
     #[arg(long, help = "Filter to application by name")]
     pub app: Option<String>,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct FocusWindowArgs {
+pub(crate) struct FocusWindowArgs {
     #[arg(long, name = "window-id", help = "Window ID from list-windows")]
     pub window_id: Option<String>,
     #[arg(long, help = "Application name")]
@@ -60,7 +60,7 @@ pub struct FocusWindowArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ResizeWindowCliArgs {
+pub(crate) struct ResizeWindowCliArgs {
     #[arg(long, help = "Application name")]
     pub app: Option<String>,
     #[arg(long, help = "New window width in pixels")]
@@ -71,7 +71,7 @@ pub struct ResizeWindowCliArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct MoveWindowCliArgs {
+pub(crate) struct MoveWindowCliArgs {
     #[arg(long, help = "Application name")]
     pub app: Option<String>,
     #[arg(long, help = "New window X position")]
@@ -82,21 +82,21 @@ pub struct MoveWindowCliArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AppRefArgs {
+pub(crate) struct AppRefArgs {
     #[arg(long, help = "Application name")]
     pub app: Option<String>,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ClipboardSetArgs {
+pub(crate) struct ClipboardSetArgs {
     #[arg(value_name = "TEXT", help = "Text to write to the clipboard")]
     pub text: String,
 }
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct WaitArgs {
+pub(crate) struct WaitArgs {
     #[arg(value_name = "MS", help = "Milliseconds to pause")]
     pub ms: Option<u64>,
     #[arg(long, help = "Block until this element ref appears in the tree")]
@@ -135,7 +135,7 @@ pub struct WaitArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct PermissionsArgs {
+pub(crate) struct PermissionsArgs {
     #[arg(long, help = "Trigger the system accessibility permission dialog")]
     #[serde(default)]
     pub request: bool,
@@ -143,14 +143,14 @@ pub struct PermissionsArgs {
 
 #[derive(Parser, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct VersionArgs {
+pub(crate) struct VersionArgs {
     #[arg(long, help = "Output version as JSON object")]
     #[serde(default)]
     pub json: bool,
 }
 
 #[derive(Parser, Debug)]
-pub struct BatchArgs {
+pub(crate) struct BatchArgs {
     #[arg(value_name = "JSON", help = "JSON array of {command, args} objects")]
     pub commands_json: String,
     #[arg(long, help = "Halt the batch on the first failed command")]

@@ -1,9 +1,9 @@
+use crate::AdAdapter;
 use crate::actions::conversion::action_from_c;
 use crate::actions::result::action_result_to_c;
 use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdAction, AdActionResult, AdNativeHandle, AdPolicyKind};
-use crate::AdAdapter;
 use agent_desktop_core::{action::ActionRequest, adapter::NativeHandle};
 
 /// # Safety
@@ -12,7 +12,7 @@ use agent_desktop_core::{action::ActionRequest, adapter::NativeHandle};
 /// `handle` must be a non-null pointer to a valid `AdNativeHandle`.
 /// `action` must be a non-null pointer to a valid `AdAction`.
 /// `out` must be a non-null pointer to an `AdActionResult` to write the result into.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_execute_action(
     adapter: *const AdAdapter,
     handle: *const AdNativeHandle,
@@ -30,7 +30,7 @@ pub unsafe extern "C" fn ad_execute_action(
 /// `handle` must be a non-null pointer to a valid `AdNativeHandle`.
 /// `action` must be a non-null pointer to a valid `AdAction`.
 /// `out` must be a non-null pointer to an `AdActionResult` to write the result into.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_execute_action_with_policy(
     adapter: *const AdAdapter,
     handle: *const AdNativeHandle,

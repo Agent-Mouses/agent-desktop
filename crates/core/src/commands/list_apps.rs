@@ -1,5 +1,5 @@
 use crate::{adapter::PlatformAdapter, commands::search_text, error::AppError};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub struct ListAppsArgs {
     pub app: Option<String>,

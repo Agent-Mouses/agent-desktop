@@ -1,6 +1,6 @@
 use agent_desktop_core::{
-    error::{AdapterError, AppError, ErrorCode},
     PermissionReport,
+    error::{AdapterError, AppError, ErrorCode},
 };
 
 use crate::cli::Commands;
