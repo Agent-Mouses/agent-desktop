@@ -6,10 +6,8 @@ use crate::{
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
-#[cfg(not(test))]
 const FOCUS_SETTLE_TIMEOUT_MS: u64 = 750;
-#[cfg(test)]
-const FOCUS_SETTLE_TIMEOUT_MS: u64 = 250;
+const FOCUS_POLL_INTERVAL_MS: u64 = 50;
 const FOCUS_CONFIRMATIONS: u8 = 2;
 
 pub struct FocusWindowArgs {
@@ -62,10 +60,24 @@ fn wait_for_focused_window(
     window_id: &str,
     app: Option<String>,
 ) -> Result<WindowInfo, AppError> {
+    wait_for_focused_window_with_poll_interval(
+        adapter,
+        window_id,
+        app.as_deref(),
+        Duration::from_millis(FOCUS_POLL_INTERVAL_MS),
+    )
+}
+
+fn wait_for_focused_window_with_poll_interval(
+    adapter: &dyn PlatformAdapter,
+    window_id: &str,
+    app: Option<&str>,
+    poll_interval: Duration,
+) -> Result<WindowInfo, AppError> {
     let deadline = Instant::now() + Duration::from_millis(FOCUS_SETTLE_TIMEOUT_MS);
     let mut confirmations = 0;
     loop {
-        match observed_focused_window(adapter, app.as_deref())? {
+        match observed_focused_window(adapter, app)? {
             Some(window) if window.id == window_id => {
                 confirmations += 1;
                 if confirmations >= FOCUS_CONFIRMATIONS {
@@ -87,7 +99,9 @@ fn wait_for_focused_window(
             ));
         }
 
-        std::thread::sleep(Duration::from_millis(50));
+        if !poll_interval.is_zero() {
+            std::thread::sleep(poll_interval);
+        }
     }
 }
 
@@ -245,17 +259,11 @@ mod tests {
             focused_window_supported: true,
         };
 
-        let value = execute(
-            FocusWindowArgs {
-                window_id: Some(target.id),
-                app: None,
-                title: None,
-            },
-            &adapter,
-        )
-        .unwrap();
+        let value =
+            wait_for_focused_window_with_poll_interval(&adapter, &target.id, None, Duration::ZERO)
+                .unwrap();
 
-        assert_eq!(value["focused"]["id"], "w1");
+        assert_eq!(value.id, "w1");
         assert_eq!(*adapter.focused_window_calls.lock().unwrap(), 4);
     }
 }
