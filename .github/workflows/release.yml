@@ -33,6 +33,40 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      - name: Sync Cargo.lock on release PR
+        if: steps.release.outputs.release_created != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          BRANCH="release-please--branches--main--components--agent-desktop"
+          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            echo "No open release PR branch to sync"
+            exit 0
+          fi
+
+          git init release-pr
+          cd release-pr
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git"
+          git fetch --depth=1 origin "$BRANCH"
+          git checkout -B "$BRANCH" FETCH_HEAD
+
+          rustup show
+          VERSION=$(sed -n 's/.*version *= *"\([^"]*\)".*/\1/p' Cargo.toml | head -1)
+          cargo update --offline -p agent-desktop --precise "$VERSION"
+
+          if git diff --quiet -- Cargo.lock; then
+            echo "Cargo.lock already matches release version ${VERSION}"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Cargo.lock
+          git commit -m "chore: sync cargo lock for release ${VERSION}"
+          git push origin "HEAD:${BRANCH}"
+
   build:
     name: Build (${{ matrix.target }})
     needs: release-please
