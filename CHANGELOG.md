@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/lahfir/agent-desktop/compare/v0.2.0...v0.2.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* stabilize empty accessibility identity refs ([1fb5a7d](https://github.com/lahfir/agent-desktop/commit/1fb5a7d51eb798100b4d597c755fee1161e298bf))
+
 ## [0.2.0](https://github.com/lahfir/agent-desktop/compare/v0.1.14...v0.2.0) (2026-05-20)
 
 
