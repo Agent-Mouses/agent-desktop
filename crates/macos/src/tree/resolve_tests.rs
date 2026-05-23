@@ -11,6 +11,7 @@ fn entry(
         role: "cell".into(),
         name: Some("Investors".into()),
         value: None,
+        description: None,
         states: vec![],
         bounds: None,
         bounds_hash,
@@ -87,6 +88,38 @@ fn no_bounds_source_window_refs_require_scoped_path_resolution() {
 }
 
 #[test]
+fn scoped_path_retry_fails_closed_when_scope_is_unresolved() {
+    let no_bounds_entry = entry(None, Some("w-10"), Some("Freeform"), None);
+
+    assert!(should_retry_scoped_path_resolution(&no_bounds_entry));
+    assert!(should_retry_scoped_path_resolution(&description_entry()));
+    assert!(!should_retry_scoped_path_resolution(&entry(
+        Some(42),
+        Some("w-10"),
+        Some("Freeform"),
+        None
+    )));
+}
+
+#[test]
+fn scoped_path_retry_fails_closed_for_blank_identity_without_bounds() {
+    let mut blank = entry(None, Some("w-10"), Some("Freeform"), None);
+    blank.name = None;
+
+    assert!(should_retry_scoped_path_resolution(&blank));
+}
+
+#[test]
+fn broad_search_requires_bounds_or_meaningful_identity() {
+    let mut blank = entry(None, None, None, None);
+    blank.name = None;
+
+    assert!(!can_use_broad_search(&blank));
+    assert!(can_use_broad_search(&description_entry()));
+    assert!(can_use_broad_search(&entry(Some(42), None, None, None)));
+}
+
+#[test]
 fn source_window_number_parses_window_ids_only() {
     assert_eq!(
         source_window_number(&entry(None, Some("w-42"), None, None)),
@@ -100,4 +133,12 @@ fn source_window_number_parses_window_ids_only() {
         source_window_number(&entry(None, Some("w-bad"), None, None)),
         None
     );
+}
+
+fn description_entry() -> RefEntry {
+    let mut entry = entry(None, Some("w-10"), Some("Freeform"), None);
+    entry.role = "button".into();
+    entry.name = None;
+    entry.description = Some("Insert Text Box".into());
+    entry
 }

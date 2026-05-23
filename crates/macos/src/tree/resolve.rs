@@ -11,14 +11,17 @@ use super::element::{
     child_attributes, copy_ax_array, copy_element_attr, copy_i64_attr, copy_string_attr,
     element_for_pid, resolve_element_name,
 };
+use super::resolve_bounds::{bounds_match, should_prune_by_bounds};
+use super::resolve_identity::{has_meaningful_identity, identity_matches};
 
 #[cfg(target_os = "macos")]
 pub fn resolve_element_impl(entry: &RefEntry) -> Result<NativeHandle, AdapterError> {
     tracing::debug!(
-        "resolve: searching pid={} role={} name={:?} bounds_hash={:?}",
+        "resolve: searching pid={} role={} name={:?} description={:?} bounds_hash={:?}",
         entry.pid,
         entry.role,
         entry.name.as_deref().unwrap_or("(none)"),
+        entry.description.as_deref().unwrap_or("(none)"),
         entry.bounds_hash
     );
     let resolve_depth: u8 = 50;
@@ -31,12 +34,18 @@ pub fn resolve_element_impl(entry: &RefEntry) -> Result<NativeHandle, AdapterErr
                 tracing::debug!("resolve: found path match");
                 return Ok(handle);
             }
-            if requires_scoped_path_resolution(entry) {
+            if should_retry_scoped_path_resolution(entry) {
                 if attempt + 1 < attempts && std::time::Instant::now() < deadline {
                     std::thread::sleep(std::time::Duration::from_millis(75));
                 }
                 continue;
             }
+        }
+        if !can_use_broad_search(entry) {
+            if attempt + 1 < attempts && std::time::Instant::now() < deadline {
+                std::thread::sleep(std::time::Duration::from_millis(75));
+            }
+            continue;
         }
         let roots = candidate_roots(entry);
         if let Ok(handle) = find_entry_in_roots(&roots, entry, resolve_depth, deadline) {
@@ -53,9 +62,10 @@ pub fn resolve_element_impl(entry: &RefEntry) -> Result<NativeHandle, AdapterErr
     Err(AdapterError::new(
         ErrorCode::StaleRef,
         format!(
-            "Element not found: role={}, name={:?}",
+            "Element not found: role={}, name={:?}, description={:?}",
             entry.role,
-            entry.name.as_deref().unwrap_or("(none)")
+            entry.name.as_deref().unwrap_or("(none)"),
+            entry.description.as_deref().unwrap_or("(none)")
         ),
     )
     .with_suggestion("Run 'snapshot' to refresh, then retry with the updated ref."))
@@ -76,6 +86,16 @@ fn requires_scoped_path_resolution(entry: &RefEntry) -> bool {
         && entry.bounds_hash.is_none()
         && !entry.path.is_empty()
         && (entry.source_window_id.is_some() || entry.source_window_title.is_some())
+}
+
+#[cfg(target_os = "macos")]
+fn should_retry_scoped_path_resolution(entry: &RefEntry) -> bool {
+    requires_scoped_path_resolution(entry)
+}
+
+#[cfg(target_os = "macos")]
+fn can_use_broad_search(entry: &RefEntry) -> bool {
+    entry.bounds_hash.is_some() || has_meaningful_identity(entry)
 }
 
 #[cfg(target_os = "macos")]
@@ -266,19 +286,6 @@ pub fn find_element_recursive(
 }
 
 #[cfg(target_os = "macos")]
-fn identity_matches(
-    entry: &RefEntry,
-    actual_name: Option<&str>,
-    actual_value: Option<&str>,
-) -> bool {
-    match (entry.name.as_deref(), entry.value.as_deref()) {
-        (Some(expected), _) => Some(expected) == actual_name || Some(expected) == actual_value,
-        (None, Some(expected)) => Some(expected) == actual_value || Some(expected) == actual_name,
-        (None, None) => actual_name.is_none() && actual_value.is_none(),
-    }
-}
-
-#[cfg(target_os = "macos")]
 fn element_matches_entry(el: &AXElement, entry: &RefEntry) -> bool {
     element_matches_path_entry(el, entry) && bounds_match(el, entry)
 }
@@ -294,47 +301,13 @@ fn element_matches_path_entry(el: &AXElement, entry: &RefEntry) -> bool {
 
     let elem_name = promoted_label.or_else(|| resolve_element_name(el));
     let elem_value = crate::tree::copy_value_typed(el);
-    identity_matches(entry, elem_name.as_deref(), elem_value.as_deref())
-}
-
-#[cfg(target_os = "macos")]
-fn bounds_match(el: &AXElement, entry: &RefEntry) -> bool {
-    match entry.bounds_hash {
-        Some(expected) => {
-            let actual = crate::tree::read_bounds(el).map(|b| b.bounds_hash());
-            actual.map(|h| h == expected).unwrap_or(false)
-        }
-        None => true,
-    }
-}
-
-#[cfg(target_os = "macos")]
-fn should_prune_by_bounds(el: &AXElement, entry: &RefEntry, depth: u8) -> bool {
-    if depth == 0 || entry.bounds.is_none() || entry.bounds_hash.is_none() {
-        return false;
-    }
-    let Some(candidate) = crate::tree::read_bounds(el) else {
-        return false;
-    };
-    let Some(target) = entry.bounds.as_ref() else {
-        return false;
-    };
-    !rects_overlap(&candidate, target)
-}
-
-#[cfg(target_os = "macos")]
-fn rects_overlap(
-    candidate: &agent_desktop_core::node::Rect,
-    target: &agent_desktop_core::node::Rect,
-) -> bool {
-    let candidate_right = candidate.x + candidate.width;
-    let candidate_bottom = candidate.y + candidate.height;
-    let target_right = target.x + target.width;
-    let target_bottom = target.y + target.height;
-    candidate.x <= target_right
-        && candidate_right >= target.x
-        && candidate.y <= target_bottom
-        && candidate_bottom >= target.y
+    let elem_description = copy_string_attr(el, accessibility_sys::kAXDescriptionAttribute);
+    identity_matches(
+        entry,
+        elem_name.as_deref(),
+        elem_value.as_deref(),
+        elem_description.as_deref(),
+    )
 }
 
 #[cfg(target_os = "macos")]
