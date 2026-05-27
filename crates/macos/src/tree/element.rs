@@ -70,23 +70,12 @@ mod imp {
         };
 
         if err != kAXErrorSuccess || result_ref.is_null() {
-            let role = copy_string_attr(el, kAXRoleAttribute);
-            let title = copy_string_attr(el, kAXTitleAttribute);
-            let desc = copy_string_attr(el, kAXDescriptionAttribute);
-            let val = copy_value_typed(el);
-            let enabled = copy_bool_attr(el, kAXEnabledAttribute).unwrap_or(true);
-            return (role, title, desc, val, enabled);
+            return fetch_node_attrs_slow(el);
         }
 
-        // Guard: verify the returned value is actually a CFArray before casting.
         if unsafe { CFGetTypeID(result_ref) } != unsafe { CFArrayGetTypeID() } {
             unsafe { core_foundation_sys::base::CFRelease(result_ref) };
-            let role = copy_string_attr(el, kAXRoleAttribute);
-            let title = copy_string_attr(el, kAXTitleAttribute);
-            let desc = copy_string_attr(el, kAXDescriptionAttribute);
-            let val = copy_value_typed(el);
-            let enabled = copy_bool_attr(el, kAXEnabledAttribute).unwrap_or(true);
-            return (role, title, desc, val, enabled);
+            return fetch_node_attrs_slow(el);
         }
 
         let arr = unsafe { CFArray::<CFType>::wrap_under_create_rule(result_ref as _) };
@@ -127,6 +116,23 @@ mod imp {
         let val = get(3);
         let enabled = get(4).map(|s| s == "true").unwrap_or(true);
 
+        (role, title, desc, val, enabled)
+    }
+
+    fn fetch_node_attrs_slow(
+        el: &AXElement,
+    ) -> (
+        Option<String>,
+        Option<String>,
+        Option<String>,
+        Option<String>,
+        bool,
+    ) {
+        let role = copy_string_attr(el, kAXRoleAttribute);
+        let title = copy_string_attr(el, kAXTitleAttribute);
+        let desc = copy_string_attr(el, kAXDescriptionAttribute);
+        let val = copy_value_typed(el);
+        let enabled = copy_bool_attr(el, kAXEnabledAttribute).unwrap_or(true);
         (role, title, desc, val, enabled)
     }
 
@@ -226,8 +232,6 @@ mod imp {
         if err != kAXErrorSuccess || value.is_null() {
             return None;
         }
-        // Guard: some apps (e.g. Mail on macOS 26 beta) return a non-array CF type
-        // for attributes that are normally arrays. Casting without checking is UB.
         if unsafe { CFGetTypeID(value) } != unsafe { CFArrayGetTypeID() } {
             unsafe { core_foundation_sys::base::CFRelease(value) };
             return None;
