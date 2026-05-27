@@ -28,6 +28,8 @@ mod imp {
         number::CFNumber,
         string::CFString,
     };
+    use core_foundation_sys::array::CFArrayGetTypeID;
+    use core_foundation_sys::base::CFGetTypeID;
 
     pub fn element_for_pid(pid: i32) -> AXElement {
         let el = AXElement(unsafe { AXUIElementCreateApplication(pid) });
@@ -68,6 +70,17 @@ mod imp {
         };
 
         if err != kAXErrorSuccess || result_ref.is_null() {
+            let role = copy_string_attr(el, kAXRoleAttribute);
+            let title = copy_string_attr(el, kAXTitleAttribute);
+            let desc = copy_string_attr(el, kAXDescriptionAttribute);
+            let val = copy_value_typed(el);
+            let enabled = copy_bool_attr(el, kAXEnabledAttribute).unwrap_or(true);
+            return (role, title, desc, val, enabled);
+        }
+
+        // Guard: verify the returned value is actually a CFArray before casting.
+        if unsafe { CFGetTypeID(result_ref) } != unsafe { CFArrayGetTypeID() } {
+            unsafe { core_foundation_sys::base::CFRelease(result_ref) };
             let role = copy_string_attr(el, kAXRoleAttribute);
             let title = copy_string_attr(el, kAXTitleAttribute);
             let desc = copy_string_attr(el, kAXDescriptionAttribute);
@@ -211,6 +224,12 @@ mod imp {
             AXUIElementCopyAttributeValue(el.0, cf_attr.as_concrete_TypeRef(), &mut value)
         };
         if err != kAXErrorSuccess || value.is_null() {
+            return None;
+        }
+        // Guard: some apps (e.g. Mail on macOS 26 beta) return a non-array CF type
+        // for attributes that are normally arrays. Casting without checking is UB.
+        if unsafe { CFGetTypeID(value) } != unsafe { CFArrayGetTypeID() } {
+            unsafe { core_foundation_sys::base::CFRelease(value) };
             return None;
         }
         let arr = unsafe { CFArray::<CFType>::wrap_under_create_rule(value as _) };
