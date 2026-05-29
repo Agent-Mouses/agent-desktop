@@ -15,12 +15,16 @@ pub(crate) fn list_apps() -> Vec<AppInfo> {
 }
 
 pub(crate) fn list_windows(filter: &WindowFilter) -> Vec<WindowInfo> {
-    window_inventory::list_windows(filter, pid_for_app_name)
+    window_inventory::list_windows(filter, app_for_name)
 }
 
 pub(crate) fn pid_for_app_name(app_name: &str) -> Option<i32> {
+    app_for_name(app_name).map(|app| app.pid)
+}
+
+pub(crate) fn app_for_name(app_name: &str) -> Option<AppInfo> {
     let apps = primary_apps();
-    find_pid_with_process_fallback(&apps, process_apps::list_apps(), app_name)
+    find_app_with_process_fallback(&apps, process_apps::list_apps(), app_name)
 }
 
 fn primary_apps() -> Vec<AppInfo> {
@@ -36,12 +40,12 @@ fn merge_primary_sources(workspace: Vec<AppInfo>, visible: Vec<AppInfo>) -> Vec<
     apps
 }
 
-fn find_pid_with_process_fallback(
+fn find_app_with_process_fallback(
     primary: &[AppInfo],
     process: Vec<AppInfo>,
     app_name: &str,
-) -> Option<i32> {
-    find_pid_in_apps(primary, app_name).or_else(|| find_pid_in_apps(&process, app_name))
+) -> Option<AppInfo> {
+    find_app_in_apps(primary, app_name).or_else(|| find_app_in_apps(&process, app_name))
 }
 
 fn merge_apps(apps: &mut Vec<AppInfo>, incoming: Vec<AppInfo>) {
@@ -70,15 +74,10 @@ fn sort_apps(apps: &mut [AppInfo]) {
     });
 }
 
-fn find_pid_in_apps(apps: &[AppInfo], app_name: &str) -> Option<i32> {
-    let app_name_lower = app_name.to_ascii_lowercase();
+fn find_app_in_apps(apps: &[AppInfo], app_name: &str) -> Option<AppInfo> {
     apps.iter()
         .find(|app| app.name.eq_ignore_ascii_case(app_name))
-        .or_else(|| {
-            apps.iter()
-                .find(|app| app.name.to_ascii_lowercase().contains(&app_name_lower))
-        })
-        .map(|app| app.pid)
+        .cloned()
 }
 
 #[cfg(test)]

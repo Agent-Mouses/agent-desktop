@@ -50,39 +50,51 @@ fn merge_apps_keeps_distinct_pids_with_same_name() {
 }
 
 #[test]
-fn find_pid_in_apps_prefers_exact_case_insensitive_match() {
+fn find_app_in_apps_prefers_exact_case_insensitive_match() {
     let apps = vec![app("Finder Helper", 10), app("Finder", 11)];
 
-    assert_eq!(find_pid_in_apps(&apps, "finder"), Some(11));
-}
-
-#[test]
-fn find_pid_in_apps_falls_back_to_contains_match() {
-    let apps = vec![app("Preview", 10), app("Docker Desktop", 11)];
-
-    assert_eq!(find_pid_in_apps(&apps, "Docker"), Some(11));
-}
-
-#[test]
-fn find_pid_with_process_fallback_uses_process_entries_after_primary_miss() {
-    let primary = vec![app("Finder", 10)];
-    let process = vec![app("Mail", 11)];
-
     assert_eq!(
-        find_pid_with_process_fallback(&primary, process, "Mail"),
+        find_app_in_apps(&apps, "finder").map(|app| app.pid),
         Some(11)
     );
 }
 
 #[test]
-fn find_pid_with_process_fallback_prefers_primary_entries() {
+fn find_app_in_apps_rejects_contains_match() {
+    let apps = vec![app("Mail Helper", 10), app("Docker Desktop", 11)];
+
+    assert!(find_app_in_apps(&apps, "Mail").is_none());
+    assert!(find_app_in_apps(&apps, "Docker").is_none());
+}
+
+#[test]
+fn find_app_with_process_fallback_uses_process_entries_after_primary_miss() {
+    let primary = vec![app("Finder", 10)];
+    let process = vec![app("Mail", 11)];
+
+    assert_eq!(
+        find_app_with_process_fallback(&primary, process, "Mail").map(|app| app.pid),
+        Some(11)
+    );
+}
+
+#[test]
+fn find_app_with_process_fallback_prefers_primary_entries() {
     let primary = vec![app("Mail", 10)];
     let process = vec![app("Mail", 11)];
 
     assert_eq!(
-        find_pid_with_process_fallback(&primary, process, "Mail"),
+        find_app_with_process_fallback(&primary, process, "Mail").map(|app| app.pid),
         Some(10)
     );
+}
+
+#[test]
+fn find_app_with_process_fallback_does_not_cross_match_helpers() {
+    let primary = Vec::new();
+    let process = vec![app("Mail Helper", 11)];
+
+    assert!(find_app_with_process_fallback(&primary, process, "Mail").is_none());
 }
 
 #[test]

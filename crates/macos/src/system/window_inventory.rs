@@ -30,37 +30,53 @@ fn apps_from_window_records(records: &[cg_window::WindowRecord]) -> Vec<AppInfo>
 
 pub(crate) fn list_windows(
     filter: &WindowFilter,
-    pid_for_app_name: impl Fn(&str) -> Option<i32>,
+    app_for_name: impl Fn(&str) -> Option<AppInfo>,
 ) -> Vec<WindowInfo> {
-    let mut app_pid = None;
-    let mut app_pid_loaded = false;
+    list_windows_with_sources(
+        filter,
+        app_for_name,
+        visible_windows_once,
+        ax_window_for_app,
+        std::thread::sleep,
+    )
+}
+
+fn list_windows_with_sources(
+    filter: &WindowFilter,
+    app_for_name: impl Fn(&str) -> Option<AppInfo>,
+    mut visible_windows: impl FnMut(&WindowFilter) -> Vec<WindowInfo>,
+    mut ax_window_for_app: impl FnMut(&AppInfo) -> Option<WindowInfo>,
+    mut sleep: impl FnMut(Duration),
+) -> Vec<WindowInfo> {
+    let mut app = None;
+    let mut app_loaded = false;
 
     for attempt in 0..3 {
-        let windows = visible_windows_once(filter);
+        let windows = visible_windows(filter);
         if !windows.is_empty() {
             return windows;
         }
 
         if let Some(app_name) = filter.app.as_deref() {
-            if !app_pid_loaded {
-                app_pid = pid_for_app_name(app_name);
-                app_pid_loaded = true;
+            if !app_loaded {
+                app = app_for_name(app_name);
+                app_loaded = true;
             }
-            if let Some(pid) = app_pid {
-                if let Some(window) = ax_window_for_app(app_name, pid) {
+            if let Some(app) = app.as_ref() {
+                if let Some(window) = ax_window_for_app(app) {
                     if !filter.focused_only || window.is_focused {
                         return vec![window];
                     }
-                    break;
+                    continue;
                 }
             }
         }
 
-        if attempt == 2 || !should_retry_empty(filter, app_pid) {
+        if attempt == 2 || !should_retry_empty(filter, app.as_ref()) {
             break;
         }
 
-        std::thread::sleep(Duration::from_millis(50));
+        sleep(Duration::from_millis(50));
     }
 
     Vec::new()
@@ -136,12 +152,12 @@ fn matches_app_filter(app_name: &str, app_filter: &str) -> bool {
     app_filter.is_empty() || app_name.to_ascii_lowercase().contains(app_filter)
 }
 
-fn should_retry_empty(filter: &WindowFilter, app_pid: Option<i32>) -> bool {
-    filter.app.is_none() || app_pid.is_some()
+fn should_retry_empty(filter: &WindowFilter, app: Option<&AppInfo>) -> bool {
+    filter.app.is_none() || app.is_some()
 }
 
-fn ax_window_for_app(app_name: &str, pid: i32) -> Option<WindowInfo> {
-    let app = crate::tree::element_for_pid(pid);
+fn ax_window_for_app(app_info: &AppInfo) -> Option<WindowInfo> {
+    let app = crate::tree::element_for_pid(app_info.pid);
     let window = focused_window_element(&app)
         .or_else(|| crate::tree::copy_element_attr(&app, "AXMainWindow"))
         .or_else(|| {
@@ -152,17 +168,26 @@ fn ax_window_for_app(app_name: &str, pid: i32) -> Option<WindowInfo> {
         return None;
     }
     let title =
-        crate::tree::copy_string_attr(&window, "AXTitle").unwrap_or_else(|| app_name.into());
+        crate::tree::copy_string_attr(&window, "AXTitle").unwrap_or_else(|| app_info.name.clone());
     let window_number = crate::tree::copy_i64_attr(&window, "AXWindowNumber").unwrap_or(0);
     let is_focused = crate::tree::copy_bool_attr(&app, "AXFrontmost") == Some(true);
-    Some(WindowInfo {
+    Some(ax_window_info(app_info, title, window_number, is_focused))
+}
+
+fn ax_window_info(
+    app_info: &AppInfo,
+    title: String,
+    window_number: i64,
+    is_focused: bool,
+) -> WindowInfo {
+    WindowInfo {
         id: format!("w-{window_number}"),
         title,
-        app: app_name.to_string(),
-        pid,
+        app: app_info.name.clone(),
+        pid: app_info.pid,
         bounds: None,
         is_focused,
-    })
+    }
 }
 
 type FocusedWindowIdentity = Option<(Option<String>, Option<i64>)>;
