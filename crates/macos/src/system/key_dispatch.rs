@@ -76,7 +76,7 @@ fn try_simple_key_action(
 fn get_focused_element(
     app_el: accessibility_sys::AXUIElementRef,
 ) -> Option<crate::tree::AXElement> {
-    use accessibility_sys::{AXUIElementCopyAttributeValue, AXUIElementRef, kAXErrorSuccess};
+    use accessibility_sys::{AXUIElementCopyAttributeValue, kAXErrorSuccess};
     use core_foundation::{base::TCFType, string::CFString};
 
     let attr = CFString::new("AXFocusedUIElement");
@@ -86,7 +86,7 @@ fn get_focused_element(
     if err != kAXErrorSuccess || value.is_null() {
         return None;
     }
-    Some(crate::tree::AXElement(value as AXUIElementRef))
+    crate::tree::ax_value::created_ax_element(value)
 }
 
 #[cfg(target_os = "macos")]
@@ -138,7 +138,7 @@ fn try_menu_bar_shortcut(
 #[cfg(target_os = "macos")]
 fn read_menu_item_modifiers(el: &crate::tree::AXElement) -> u32 {
     use accessibility_sys::{AXUIElementCopyAttributeValue, kAXErrorSuccess};
-    use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
+    use core_foundation::{base::TCFType, string::CFString};
 
     let attr = CFString::new("AXMenuItemCmdModifiers");
     let mut value: core_foundation_sys::base::CFTypeRef = std::ptr::null_mut();
@@ -148,8 +148,8 @@ fn read_menu_item_modifiers(el: &crate::tree::AXElement) -> u32 {
         return 0;
     }
     let cf = unsafe { core_foundation::base::CFType::wrap_under_create_rule(value) };
-    cf.downcast::<CFNumber>()
-        .and_then(|n| n.to_i64())
+    crate::cf_type::borrowed_cf_number(cf.as_concrete_TypeRef())
+        .and_then(|number| number.to_i64())
         .map(|v| v as u32)
         .unwrap_or(0)
 }

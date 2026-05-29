@@ -5,16 +5,11 @@ mod imp {
     use super::*;
     use crate::tree::AXElement;
     use accessibility_sys::{
-        AXUIElementCopyActionNames, AXUIElementIsAttributeSettable, AXUIElementPerformAction,
-        AXUIElementSetAttributeValue, AXUIElementSetMessagingTimeout, kAXErrorAPIDisabled,
-        kAXErrorCannotComplete, kAXErrorSuccess, kAXFocusedAttribute, kAXValueAttribute,
+        AXUIElementIsAttributeSettable, AXUIElementPerformAction, AXUIElementSetAttributeValue,
+        AXUIElementSetMessagingTimeout, kAXErrorAPIDisabled, kAXErrorCannotComplete,
+        kAXErrorSuccess, kAXFocusedAttribute, kAXValueAttribute,
     };
-    use core_foundation::{
-        array::CFArray,
-        base::{CFType, TCFType},
-        boolean::CFBoolean,
-        string::CFString,
-    };
+    use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
     use std::os::raw::c_uchar;
 
     pub(crate) fn try_ax_action(el: &AXElement, name: &str) -> bool {
@@ -105,19 +100,7 @@ mod imp {
     }
 
     pub(crate) fn list_ax_actions(el: &AXElement) -> Vec<String> {
-        let mut actions_ref: core_foundation_sys::array::CFArrayRef = std::ptr::null();
-        let err = unsafe { AXUIElementCopyActionNames(el.0, &mut actions_ref) };
-        if err != kAXErrorSuccess || actions_ref.is_null() {
-            return Vec::new();
-        }
-        let actions: CFArray<CFType> = unsafe { TCFType::wrap_under_create_rule(actions_ref) };
-        let mut result = Vec::with_capacity(actions.len() as usize);
-        for i in 0..actions.len() {
-            if let Some(name) = actions.get(i).and_then(|v| v.downcast::<CFString>()) {
-                result.push(name.to_string());
-            }
-        }
-        result
+        crate::tree::capabilities::copy_action_names(el)
     }
 
     pub(crate) fn has_ax_action(el: &AXElement, target: &str) -> bool {

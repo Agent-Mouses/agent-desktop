@@ -1,12 +1,11 @@
 #[cfg(target_os = "macos")]
 mod imp {
-    use crate::tree::AXElement;
+    use crate::{cf_type::created_cf_array, tree::AXElement};
     use accessibility_sys::{
         AXUIElementCopyActionNames, AXUIElementIsAttributeSettable, kAXErrorSuccess,
     };
     use core_foundation::{
-        array::CFArray,
-        base::{CFEqual, CFType, CFTypeRef, TCFType},
+        base::{CFEqual, CFTypeRef, TCFType},
         string::CFString,
     };
     use std::os::raw::c_uchar;
@@ -27,7 +26,9 @@ mod imp {
             return Vec::new();
         }
 
-        let actions: CFArray<CFType> = unsafe { TCFType::wrap_under_create_rule(actions_ref) };
+        let Some(actions) = created_cf_array(actions_ref as _) else {
+            return Vec::new();
+        };
         let mut result = Vec::with_capacity(actions.len() as usize);
         for i in 0..actions.len() {
             if let Some(name) = actions.get(i).and_then(|v| v.downcast::<CFString>()) {

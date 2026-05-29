@@ -62,3 +62,15 @@ fn find_pid_in_apps_falls_back_to_contains_match() {
 
     assert_eq!(find_pid_in_apps(&apps, "Docker"), Some(11));
 }
+
+#[test]
+fn sort_apps_orders_by_name_then_pid() {
+    let mut apps = vec![app("Terminal", 3), app("Finder", 2), app("Finder", 1)];
+
+    sort_apps(&mut apps);
+
+    assert_eq!(
+        apps.iter().map(|app| app.pid).collect::<Vec<_>>(),
+        vec![1, 2, 3]
+    );
+}

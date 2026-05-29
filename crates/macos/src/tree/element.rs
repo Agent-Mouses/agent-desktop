@@ -13,23 +13,24 @@ pub(crate) fn child_attributes(ax_role: Option<&str>) -> &'static [&'static str]
 #[cfg(target_os = "macos")]
 mod imp {
     use super::*;
-    use crate::tree::ax_element::AXElement;
+    use crate::{
+        cf_type::created_cf_array,
+        tree::{ax_element::AXElement, ax_value},
+    };
     use accessibility_sys::{
         AXUIElementCopyAttributeValue, AXUIElementCopyAttributeValues,
         AXUIElementCopyMultipleAttributeValues, AXUIElementCreateApplication,
-        AXUIElementGetAttributeValueCount, AXUIElementRef, AXUIElementSetMessagingTimeout,
-        kAXDescriptionAttribute, kAXEnabledAttribute, kAXErrorSuccess, kAXRoleAttribute,
-        kAXTitleAttribute, kAXValueAttribute,
+        AXUIElementGetAttributeValueCount, AXUIElementSetMessagingTimeout, kAXDescriptionAttribute,
+        kAXEnabledAttribute, kAXErrorSuccess, kAXRoleAttribute, kAXTitleAttribute,
+        kAXValueAttribute,
     };
     use core_foundation::{
         array::CFArray,
-        base::{CFRetain, CFType, CFTypeRef, TCFType},
+        base::{CFType, CFTypeRef, TCFType},
         boolean::CFBoolean,
         number::CFNumber,
         string::CFString,
     };
-    use core_foundation_sys::array::CFArrayGetTypeID;
-    use core_foundation_sys::base::CFGetTypeID;
 
     pub fn element_for_pid(pid: i32) -> AXElement {
         let el = AXElement(unsafe { AXUIElementCreateApplication(pid) });
@@ -73,12 +74,9 @@ mod imp {
             return fetch_node_attrs_slow(el);
         }
 
-        if unsafe { CFGetTypeID(result_ref) } != unsafe { CFArrayGetTypeID() } {
-            unsafe { core_foundation_sys::base::CFRelease(result_ref) };
+        let Some(arr) = created_cf_array(result_ref) else {
             return fetch_node_attrs_slow(el);
-        }
-
-        let arr = unsafe { CFArray::<CFType>::wrap_under_create_rule(result_ref as _) };
+        };
         let items: Vec<Option<String>> = arr
             .into_iter()
             .enumerate()
@@ -232,23 +230,8 @@ mod imp {
         if err != kAXErrorSuccess || value.is_null() {
             return None;
         }
-        if unsafe { CFGetTypeID(value) } != unsafe { CFArrayGetTypeID() } {
-            unsafe { core_foundation_sys::base::CFRelease(value) };
-            return None;
-        }
-        let arr = unsafe { CFArray::<CFType>::wrap_under_create_rule(value as _) };
-        let children: Vec<AXElement> = arr
-            .into_iter()
-            .filter_map(|item| {
-                let ptr = item.as_concrete_TypeRef() as AXUIElementRef;
-                if ptr.is_null() {
-                    return None;
-                }
-                unsafe { CFRetain(ptr as CFTypeRef) };
-                Some(AXElement(ptr))
-            })
-            .collect();
-        Some(children)
+        let arr = created_cf_array(value)?;
+        Some(ax_array_items(arr))
     }
 
     pub fn copy_ax_array_prefix(
@@ -273,7 +256,7 @@ mod imp {
         if err != kAXErrorSuccess || value.is_null() {
             return None;
         }
-        let arr = unsafe { CFArray::<CFType>::wrap_under_create_rule(value as _) };
+        let arr = created_cf_array(value as CFTypeRef)?;
         Some(ax_array_items(arr))
     }
 
@@ -286,8 +269,7 @@ mod imp {
         if err != kAXErrorSuccess || value.is_null() {
             return None;
         }
-        let ptr = value as AXUIElementRef;
-        Some(AXElement(ptr))
+        ax_value::created_ax_element(value)
     }
 
     pub fn count_children(element: &AXElement, ax_role: Option<&str>) -> u32 {
@@ -313,14 +295,7 @@ mod imp {
 
     fn ax_array_items(arr: CFArray<CFType>) -> Vec<AXElement> {
         arr.into_iter()
-            .filter_map(|item| {
-                let ptr = item.as_concrete_TypeRef() as AXUIElementRef;
-                if ptr.is_null() {
-                    return None;
-                }
-                unsafe { CFRetain(ptr as CFTypeRef) };
-                Some(AXElement(ptr))
-            })
+            .filter_map(|item| ax_value::retained_ax_element(&item))
             .collect()
     }
 }

@@ -138,11 +138,9 @@ mod imp {
     }
 
     fn find_cg_window_id_for_pid(pid: i32) -> Option<u32> {
+        use crate::cf_type::{borrowed_cf_dictionary, borrowed_cf_number, created_cf_array};
         use core_foundation::{
-            array::CFArray,
-            base::{CFType, CFTypeRef, TCFType},
-            dictionary::CFDictionary,
-            number::CFNumber,
+            base::{CFTypeRef, TCFType},
             string::CFString,
         };
 
@@ -155,24 +153,21 @@ mod imp {
             return None;
         }
 
-        let array = unsafe { CFArray::<CFType>::wrap_under_create_rule(info_ref as _) };
+        let array = created_cf_array(info_ref)?;
 
         let mut best_id: Option<u32> = None;
         let mut best_area: f64 = 0.0;
 
         for item in array.iter() {
-            let dict = unsafe {
-                CFDictionary::<CFString, CFType>::wrap_under_get_rule(
-                    item.as_concrete_TypeRef() as _
-                )
+            let Some(dict) = borrowed_cf_dictionary(item.as_concrete_TypeRef()) else {
+                continue;
             };
 
             let int_field = |key: &str| -> Option<i32> {
                 let k = CFString::new(key);
-                dict.find(&k).and_then(|v| {
-                    let n = unsafe { CFNumber::wrap_under_get_rule(v.as_concrete_TypeRef() as _) };
-                    n.to_i32()
-                })
+                dict.find(&k)
+                    .and_then(|v| borrowed_cf_number(v.as_concrete_TypeRef()))
+                    .and_then(|n| n.to_i32())
             };
 
             if int_field("kCGWindowOwnerPID") != Some(pid) {
@@ -189,18 +184,15 @@ mod imp {
 
             let bounds_key = CFString::new("kCGWindowBounds");
             let area = if let Some(bounds_val) = dict.find(&bounds_key) {
-                let bounds_dict = unsafe {
-                    CFDictionary::<CFString, CFType>::wrap_under_get_rule(
-                        bounds_val.as_concrete_TypeRef() as _,
-                    )
+                let Some(bounds_dict) = borrowed_cf_dictionary(bounds_val.as_concrete_TypeRef())
+                else {
+                    continue;
                 };
                 let w = bounds_dict.find(CFString::new("Width")).and_then(|v| {
-                    let n = unsafe { CFNumber::wrap_under_get_rule(v.as_concrete_TypeRef() as _) };
-                    n.to_f64()
+                    borrowed_cf_number(v.as_concrete_TypeRef()).and_then(|n| n.to_f64())
                 });
                 let h = bounds_dict.find(CFString::new("Height")).and_then(|v| {
-                    let n = unsafe { CFNumber::wrap_under_get_rule(v.as_concrete_TypeRef() as _) };
-                    n.to_f64()
+                    borrowed_cf_number(v.as_concrete_TypeRef()).and_then(|n| n.to_f64())
                 });
                 w.unwrap_or(0.0) * h.unwrap_or(0.0)
             } else {

@@ -1,9 +1,13 @@
+pub(crate) mod app_inventory;
 pub mod app_list;
 pub mod app_ops;
 pub mod key_dispatch;
 pub mod permissions;
 pub(crate) mod process;
+pub(crate) mod process_apps;
 pub mod screenshot;
 pub mod wait;
+pub(crate) mod window_inventory;
 pub mod window_list;
 pub mod window_ops;
+pub(crate) mod workspace_apps;
