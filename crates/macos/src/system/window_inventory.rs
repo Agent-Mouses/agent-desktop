@@ -7,35 +7,20 @@ use std::time::Duration;
 use crate::system::cg_window;
 
 pub(crate) fn visible_apps() -> Vec<AppInfo> {
+    apps_from_window_records(&cg_window::visible_window_records())
+}
+
+fn apps_from_window_records(records: &[cg_window::WindowRecord]) -> Vec<AppInfo> {
     let mut seen_pids = std::collections::HashSet::new();
     let mut apps = Vec::new();
 
-    for dict in cg_window::window_dictionaries() {
-        let Some(layer) = cg_window::int_field(&dict, "kCGWindowLayer") else {
-            continue;
-        };
-        if layer != 0 {
+    for record in records {
+        if !seen_pids.insert(record.pid) {
             continue;
         }
-
-        let Some(pid) = cg_window::int_field(&dict, "kCGWindowOwnerPID").map(|pid| pid as i32)
-        else {
-            continue;
-        };
-        if pid <= 0 || !seen_pids.insert(pid) {
-            continue;
-        }
-
-        let Some(name) = cg_window::string_field(&dict, "kCGWindowOwnerName") else {
-            continue;
-        };
-        if name.is_empty() {
-            continue;
-        }
-
         apps.push(AppInfo {
-            name,
-            pid,
+            name: record.app_name.clone(),
+            pid: record.pid,
             bundle_id: None,
         });
     }
@@ -47,7 +32,8 @@ pub(crate) fn list_windows(
     filter: &WindowFilter,
     pid_for_app_name: impl Fn(&str) -> Option<i32>,
 ) -> Vec<WindowInfo> {
-    let app_pid = filter.app.as_deref().and_then(pid_for_app_name);
+    let mut app_pid = None;
+    let mut app_pid_loaded = false;
 
     for attempt in 0..3 {
         let windows = visible_windows_once(filter);
@@ -55,8 +41,19 @@ pub(crate) fn list_windows(
             return windows;
         }
 
-        if let Some(window) = ax_window_for_filter(filter, app_pid) {
-            return vec![window];
+        if let Some(app_name) = filter.app.as_deref() {
+            if !app_pid_loaded {
+                app_pid = pid_for_app_name(app_name);
+                app_pid_loaded = true;
+            }
+            if let Some(pid) = app_pid {
+                if let Some(window) = ax_window_for_app(app_name, pid) {
+                    if !filter.focused_only || window.is_focused {
+                        return vec![window];
+                    }
+                    break;
+                }
+            }
         }
 
         if attempt == 2 || !should_retry_empty(filter, app_pid) {
@@ -71,39 +68,33 @@ pub(crate) fn list_windows(
 
 fn visible_windows_once(filter: &WindowFilter) -> Vec<WindowInfo> {
     let app_filter = filter.app.as_deref().unwrap_or("").to_ascii_lowercase();
-    let mut candidates = Vec::new();
+    let candidates = cg_window::visible_window_records()
+        .into_iter()
+        .filter(|record| matches_app_filter(&record.app_name, &app_filter))
+        .collect();
 
-    for dict in cg_window::window_dictionaries() {
-        let Some(layer) = cg_window::int_field(&dict, "kCGWindowLayer") else {
-            continue;
-        };
-        if layer != 0 {
-            continue;
-        }
-
-        let Some(app_name) = cg_window::string_field(&dict, "kCGWindowOwnerName") else {
-            continue;
-        };
-        if app_name.is_empty() || !matches_app_filter(&app_name, &app_filter) {
-            continue;
-        }
-
-        let title = cg_window::string_field(&dict, "kCGWindowName")
-            .filter(|title| !title.is_empty())
-            .unwrap_or_else(|| app_name.clone());
-        let pid = cg_window::int_field(&dict, "kCGWindowOwnerPID").unwrap_or(0) as i32;
-        let window_number = cg_window::int_field(&dict, "kCGWindowNumber").unwrap_or(0);
-
-        candidates.push((app_name, title, pid, window_number));
-    }
-
-    windows_from_candidates(candidates, filter.focused_only)
+    windows_from_records(candidates, filter.focused_only)
 }
 
-fn windows_from_candidates(
-    candidates: Vec<(String, String, i32, i64)>,
+fn windows_from_records(
+    records: Vec<cg_window::WindowRecord>,
     focused_only: bool,
 ) -> Vec<WindowInfo> {
+    windows_from_records_with_focus(records, focused_only, focused_window_identity)
+}
+
+fn windows_from_records_with_focus(
+    records: Vec<cg_window::WindowRecord>,
+    focused_only: bool,
+    mut focused_identity: impl FnMut(i32) -> FocusedWindowIdentity,
+) -> Vec<WindowInfo> {
+    let candidates: Vec<_> = records
+        .into_iter()
+        .map(|record| {
+            let title = record.title.unwrap_or_else(|| record.app_name.clone());
+            (record.app_name, title, record.pid, record.window_number)
+        })
+        .collect();
     let mut title_counts = std::collections::HashMap::new();
     for (_, title, pid, _) in &candidates {
         *title_counts.entry((*pid, title.clone())).or_insert(0) += 1;
@@ -120,7 +111,7 @@ fn windows_from_candidates(
             .unwrap_or(0);
         let identity = focus_cache
             .entry(pid)
-            .or_insert_with(|| focused_window_identity(pid));
+            .or_insert_with(|| focused_identity(pid));
         let is_focused =
             !focused_seen && matches_focused_window(&title, window_number, identity, title_count);
         if focused_only && !is_focused {
@@ -147,11 +138,6 @@ fn matches_app_filter(app_name: &str, app_filter: &str) -> bool {
 
 fn should_retry_empty(filter: &WindowFilter, app_pid: Option<i32>) -> bool {
     filter.app.is_none() || app_pid.is_some()
-}
-
-fn ax_window_for_filter(filter: &WindowFilter, app_pid: Option<i32>) -> Option<WindowInfo> {
-    let app_name = filter.app.as_deref()?;
-    ax_window_for_app(app_name, app_pid?).filter(|window| !filter.focused_only || window.is_focused)
 }
 
 fn ax_window_for_app(app_name: &str, pid: i32) -> Option<WindowInfo> {
@@ -210,15 +196,29 @@ fn matches_focused_window(
 
 fn focused_window_element(app: &crate::tree::AXElement) -> Option<crate::tree::AXElement> {
     let focused = crate::tree::copy_element_attr(app, "AXFocusedWindow")?;
-    if crate::tree::copy_string_attr(&focused, "AXRole").as_deref() == Some("AXWindow") {
-        return Some(focused);
+    window_ancestor(focused, 4)
+}
+
+fn window_ancestor(
+    mut element: crate::tree::AXElement,
+    max_depth: usize,
+) -> Option<crate::tree::AXElement> {
+    for _ in 0..=max_depth {
+        if is_window_element(&element) {
+            return Some(element);
+        }
+        if let Some(window) = crate::tree::copy_element_attr(&element, "AXWindow") {
+            if is_window_element(&window) {
+                return Some(window);
+            }
+        }
+        element = crate::tree::copy_element_attr(&element, "AXParent")?;
     }
-    let parent_window = crate::tree::copy_element_attr(&focused, "AXWindow")?;
-    if crate::tree::copy_string_attr(&parent_window, "AXRole").as_deref() == Some("AXWindow") {
-        Some(parent_window)
-    } else {
-        None
-    }
+    None
+}
+
+fn is_window_element(element: &crate::tree::AXElement) -> bool {
+    crate::tree::copy_string_attr(element, "AXRole").as_deref() == Some("AXWindow")
 }
 
 #[cfg(test)]

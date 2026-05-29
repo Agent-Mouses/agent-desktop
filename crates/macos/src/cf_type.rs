@@ -62,6 +62,11 @@ mod imp {
         use core_foundation::base::CFRetain;
 
         #[test]
+        fn created_array_rejects_null() {
+            assert!(created_cf_array(std::ptr::null()).is_none());
+        }
+
+        #[test]
         fn created_array_rejects_created_non_array_ref() {
             let value = CFString::new("not-array");
             let retained = unsafe { CFRetain(value.as_CFTypeRef()) };
@@ -87,6 +92,39 @@ mod imp {
             let number = CFNumber::from(7);
 
             assert!(borrowed_cf_string(number.as_CFTypeRef()).is_none());
+        }
+
+        #[test]
+        fn borrowed_dictionary_accepts_dictionary_ref() {
+            let key = CFString::new("key");
+            let value = CFString::new("value");
+            let dict = CFDictionary::from_CFType_pairs(&[(key.as_CFType(), value.as_CFType())]);
+
+            assert!(borrowed_cf_dictionary(dict.as_CFTypeRef()).is_some());
+        }
+
+        #[test]
+        fn borrowed_dictionary_rejects_non_dictionary_ref() {
+            let value = CFString::new("not-dictionary");
+
+            assert!(borrowed_cf_dictionary(value.as_CFTypeRef()).is_none());
+        }
+
+        #[test]
+        fn borrowed_number_accepts_number_ref() {
+            let value = CFNumber::from(7);
+
+            assert_eq!(
+                borrowed_cf_number(value.as_CFTypeRef()).and_then(|n| n.to_i64()),
+                Some(7)
+            );
+        }
+
+        #[test]
+        fn borrowed_number_rejects_non_number_ref() {
+            let value = CFString::new("not-number");
+
+            assert!(borrowed_cf_number(value.as_CFTypeRef()).is_none());
         }
     }
 }

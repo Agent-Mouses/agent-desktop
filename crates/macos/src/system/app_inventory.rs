@@ -71,12 +71,12 @@ fn sort_apps(apps: &mut [AppInfo]) {
 }
 
 fn find_pid_in_apps(apps: &[AppInfo], app_name: &str) -> Option<i32> {
-    let wanted = app_name.to_ascii_lowercase();
+    let app_name_lower = app_name.to_ascii_lowercase();
     apps.iter()
         .find(|app| app.name.eq_ignore_ascii_case(app_name))
         .or_else(|| {
             apps.iter()
-                .find(|app| app.name.to_ascii_lowercase().contains(&wanted))
+                .find(|app| app.name.to_ascii_lowercase().contains(&app_name_lower))
         })
         .map(|app| app.pid)
 }

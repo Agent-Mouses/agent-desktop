@@ -6,6 +6,7 @@ pub mod builder;
 pub mod capabilities;
 pub mod element;
 pub mod element_bounds;
+pub(crate) mod node_attrs;
 pub mod resolve;
 mod resolve_bounds;
 mod resolve_identity;
@@ -21,6 +22,7 @@ pub use element::{
     copy_value_typed, element_for_pid, resolve_element_name,
 };
 pub use element_bounds::read_bounds;
+pub(crate) use node_attrs::NodeAttrs;
 pub use surfaces::{
     alert_for_pid, focused_surface_for_pid, menu_element_for_pid, menubar_for_pid, popover_for_pid,
     sheet_for_pid,

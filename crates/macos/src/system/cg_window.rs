@@ -1,8 +1,46 @@
 use core_foundation::{base::CFType, dictionary::CFDictionary, string::CFString};
 
-pub(crate) type WindowDictionary = CFDictionary<CFString, CFType>;
+type WindowDictionary = CFDictionary<CFString, CFType>;
 
-pub(crate) fn window_dictionaries() -> Vec<WindowDictionary> {
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct WindowRecord {
+    pub(crate) app_name: String,
+    pub(crate) pid: i32,
+    pub(crate) title: Option<String>,
+    pub(crate) window_number: i64,
+    pub(crate) area: f64,
+}
+
+pub(crate) fn visible_window_records() -> Vec<WindowRecord> {
+    window_dictionaries()
+        .into_iter()
+        .filter_map(|dict| {
+            if int_field(&dict, "kCGWindowLayer")? != 0 {
+                return None;
+            }
+
+            let pid = int_field(&dict, "kCGWindowOwnerPID")? as i32;
+            if pid <= 0 {
+                return None;
+            }
+
+            let app_name = string_field(&dict, "kCGWindowOwnerName")?;
+            if app_name.is_empty() {
+                return None;
+            }
+
+            Some(WindowRecord {
+                app_name,
+                pid,
+                title: string_field(&dict, "kCGWindowName").filter(|title| !title.is_empty()),
+                window_number: int_field(&dict, "kCGWindowNumber").unwrap_or(0),
+                area: area_field(&dict, "kCGWindowBounds").unwrap_or(0.0),
+            })
+        })
+        .collect()
+}
+
+fn window_dictionaries() -> Vec<WindowDictionary> {
     use crate::cf_type::borrowed_cf_dictionary;
     use core_graphics::display::CGDisplay;
     use core_graphics::window::{
@@ -21,7 +59,7 @@ pub(crate) fn window_dictionaries() -> Vec<WindowDictionary> {
         .collect()
 }
 
-pub(crate) fn int_field(dict: &WindowDictionary, key: &str) -> Option<i64> {
+fn int_field(dict: &WindowDictionary, key: &str) -> Option<i64> {
     use crate::cf_type::borrowed_cf_number;
     use core_foundation::base::TCFType;
 
@@ -31,7 +69,7 @@ pub(crate) fn int_field(dict: &WindowDictionary, key: &str) -> Option<i64> {
         .and_then(|number| number.to_i64())
 }
 
-pub(crate) fn string_field(dict: &WindowDictionary, key: &str) -> Option<String> {
+fn string_field(dict: &WindowDictionary, key: &str) -> Option<String> {
     use crate::cf_type::borrowed_cf_string;
     use core_foundation::base::TCFType;
 
@@ -41,7 +79,7 @@ pub(crate) fn string_field(dict: &WindowDictionary, key: &str) -> Option<String>
         .map(|value| value.to_string())
 }
 
-pub(crate) fn area_field(dict: &WindowDictionary, key: &str) -> Option<f64> {
+fn area_field(dict: &WindowDictionary, key: &str) -> Option<f64> {
     use crate::cf_type::borrowed_cf_dictionary;
     use core_foundation::base::TCFType;
 

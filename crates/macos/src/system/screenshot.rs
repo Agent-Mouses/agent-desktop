@@ -141,24 +141,14 @@ mod imp {
         let mut best_id: Option<u32> = None;
         let mut best_area: f64 = 0.0;
 
-        for dict in crate::system::cg_window::window_dictionaries() {
-            if crate::system::cg_window::int_field(&dict, "kCGWindowOwnerPID") != Some(pid as i64) {
-                continue;
-            }
-            if crate::system::cg_window::int_field(&dict, "kCGWindowLayer").unwrap_or(99) != 0 {
+        for record in crate::system::cg_window::visible_window_records() {
+            if record.pid != pid {
                 continue;
             }
 
-            let wid = match crate::system::cg_window::int_field(&dict, "kCGWindowNumber") {
-                Some(n) => n as u32,
-                None => continue,
-            };
-            let area =
-                crate::system::cg_window::area_field(&dict, "kCGWindowBounds").unwrap_or(0.0);
-
-            if area > best_area {
-                best_area = area;
-                best_id = Some(wid);
+            if record.area > best_area {
+                best_area = record.area;
+                best_id = Some(record.window_number as u32);
             }
         }
 

@@ -58,16 +58,17 @@ pub fn build_subtree(
         return None;
     }
     if raw_depth >= ABSOLUTE_MAX_DEPTH {
-        let (ax_role, title, ax_desc, value, _) = fetch_node_attrs(el);
-        let role = ax_role
+        let attrs = fetch_node_attrs(el);
+        let role = attrs
+            .role
             .as_deref()
             .map(crate::tree::roles::ax_role_to_str)
             .unwrap_or("unknown")
             .to_string();
-        let is_secure_text = is_secure_text_role(ax_role.as_deref());
-        let value = redact_secure_value(ax_role.as_deref(), value);
-        let name = title.or(ax_desc);
-        let child_count = count_children(el, ax_role.as_deref());
+        let is_secure_text = is_secure_text_role(attrs.role.as_deref());
+        let value = redact_secure_value(attrs.role.as_deref(), attrs.value);
+        let name = attrs.title.or(attrs.description);
+        let child_count = count_children(el, attrs.role.as_deref());
         let bounds = context.read_bounds(el);
         let mut states = Vec::new();
         if is_secure_text {
@@ -96,12 +97,12 @@ pub fn build_subtree(
         return None;
     }
 
-    let (ax_role, title, ax_desc, value, enabled) = fetch_node_attrs(el);
+    let attrs = fetch_node_attrs(el);
 
     let (role, promoted_label) =
-        crate::tree::roles::normalized_role_and_label(el, ax_role.as_deref());
-    let is_secure_text = is_secure_text_role(ax_role.as_deref());
-    let value = redact_secure_value(ax_role.as_deref(), value);
+        crate::tree::roles::normalized_role_and_label(el, attrs.role.as_deref());
+    let is_secure_text = is_secure_text_role(attrs.role.as_deref());
+    let value = redact_secure_value(attrs.role.as_deref(), attrs.value);
     let is_promoted_item = promoted_label.is_some();
     let available_actions = if is_promoted_item {
         vec!["Click".into(), "RightClick".into()]
@@ -109,10 +110,14 @@ pub fn build_subtree(
         platform_available_actions(el, &role)
     };
 
-    let name = promoted_label.or_else(|| title.clone().or_else(|| ax_desc.clone()));
-    let description = if title.is_some() { ax_desc } else { None };
+    let name = promoted_label.or_else(|| attrs.title.clone().or_else(|| attrs.description.clone()));
+    let description = if attrs.title.is_some() {
+        attrs.description
+    } else {
+        None
+    };
 
-    let name = if name.is_none() && ax_role.as_deref() == Some("AXStaticText") {
+    let name = if name.is_none() && attrs.role.as_deref() == Some("AXStaticText") {
         value.clone().or(name)
     } else {
         name
@@ -126,7 +131,7 @@ pub fn build_subtree(
     {
         states.push("focused".into());
     }
-    if !enabled {
+    if !attrs.enabled {
         states.push("disabled".into());
     }
     if is_secure_text {
@@ -142,9 +147,9 @@ pub fn build_subtree(
     let bounds = context.read_bounds(el);
 
     let is_web_wrapper = matches!(
-        ax_role.as_deref(),
+        attrs.role.as_deref(),
         Some("AXGroup") | Some("AXGenericElement")
-    ) && title.as_deref().is_none_or(str::is_empty)
+    ) && attrs.title.as_deref().is_none_or(str::is_empty)
         && value.as_deref().is_none_or(str::is_empty);
 
     let child_depth = if is_web_wrapper { depth } else { depth + 1 };
@@ -154,13 +159,13 @@ pub fn build_subtree(
         skeleton && (child_depth > max_depth || child_raw_depth >= ABSOLUTE_MAX_DEPTH);
 
     if at_skeleton_boundary {
-        let child_count = count_children(el, ax_role.as_deref());
+        let child_count = count_children(el, attrs.role.as_deref());
         let children_count = if child_count > 0 {
             Some(child_count)
         } else {
             None
         };
-        let name = name.or_else(|| label_from_child_attrs(el, ax_role.as_deref()));
+        let name = name.or_else(|| label_from_child_attrs(el, attrs.role.as_deref()));
         ancestors.remove(&ptr_key);
         return Some(AccessibilityNode {
             ref_id: None,
@@ -177,7 +182,7 @@ pub fn build_subtree(
         });
     }
 
-    let children_raw = copy_children(el, ax_role.as_deref()).unwrap_or_default();
+    let children_raw = copy_children(el, attrs.role.as_deref()).unwrap_or_default();
     let name = name.or_else(|| label_from_children(&children_raw));
 
     let children = if is_promoted_item {

@@ -15,7 +15,7 @@ mod imp {
     use super::*;
     use crate::{
         cf_type::created_cf_array,
-        tree::{ax_element::AXElement, ax_value},
+        tree::{NodeAttrs, ax_element::AXElement, ax_value},
     };
     use accessibility_sys::{
         AXUIElementCopyAttributeValue, AXUIElementCopyAttributeValues,
@@ -40,15 +40,7 @@ mod imp {
         el
     }
 
-    pub fn fetch_node_attrs(
-        el: &AXElement,
-    ) -> (
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        bool,
-    ) {
+    pub fn fetch_node_attrs(el: &AXElement) -> NodeAttrs {
         let attr_names = [
             kAXRoleAttribute,
             kAXTitleAttribute,
@@ -108,30 +100,22 @@ mod imp {
             .collect();
 
         let get = |i: usize| items.get(i).and_then(|v| v.clone());
-        let role = get(0);
-        let title = get(1);
-        let desc = get(2);
-        let val = get(3);
-        let enabled = get(4).map(|s| s == "true").unwrap_or(true);
-
-        (role, title, desc, val, enabled)
+        NodeAttrs::enabled_by_default(get(0), get(1), get(2), get(3), get(4))
     }
 
-    fn fetch_node_attrs_slow(
-        el: &AXElement,
-    ) -> (
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        bool,
-    ) {
+    fn fetch_node_attrs_slow(el: &AXElement) -> NodeAttrs {
         let role = copy_string_attr(el, kAXRoleAttribute);
         let title = copy_string_attr(el, kAXTitleAttribute);
         let desc = copy_string_attr(el, kAXDescriptionAttribute);
         let val = copy_value_typed(el);
         let enabled = copy_bool_attr(el, kAXEnabledAttribute).unwrap_or(true);
-        (role, title, desc, val, enabled)
+        NodeAttrs {
+            role,
+            title,
+            description: desc,
+            value: val,
+            enabled,
+        }
     }
 
     pub fn resolve_element_name(el: &AXElement) -> Option<String> {
@@ -302,7 +286,7 @@ mod imp {
 
 #[cfg(not(target_os = "macos"))]
 mod imp {
-    use crate::tree::ax_element::AXElement;
+    use crate::tree::{NodeAttrs, ax_element::AXElement};
 
     pub fn element_for_pid(_pid: i32) -> AXElement {
         AXElement(std::ptr::null())
@@ -348,16 +332,11 @@ mod imp {
         None
     }
 
-    pub fn fetch_node_attrs(
-        _el: &AXElement,
-    ) -> (
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        Option<String>,
-        bool,
-    ) {
-        (None, None, None, None, true)
+    pub fn fetch_node_attrs(_el: &AXElement) -> NodeAttrs {
+        NodeAttrs {
+            enabled: true,
+            ..NodeAttrs::default()
+        }
     }
 }
 

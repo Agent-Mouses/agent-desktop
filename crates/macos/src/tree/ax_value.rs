@@ -65,10 +65,14 @@ mod imp {
     pub(crate) fn created_ax_element(_value: *const std::ffi::c_void) -> Option<AXElement> {
         None
     }
+
+    pub(crate) fn retained_ax_element(_value: &core_foundation::base::CFType) -> Option<AXElement> {
+        None
+    }
 }
 
 #[cfg(target_os = "macos")]
 pub(crate) use imp::{created_ax_element, retained_ax_element};
 
 #[cfg(not(target_os = "macos"))]
-pub(crate) use imp::created_ax_element;
+pub(crate) use imp::{created_ax_element, retained_ax_element};
