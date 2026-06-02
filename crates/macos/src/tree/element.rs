@@ -15,7 +15,7 @@ mod imp {
     use super::*;
     use crate::{
         cf_type::created_cf_array,
-        tree::{NodeAttrs, ax_element::AXElement, ax_value},
+        tree::{NodeAttrs, ax_element::AXElement, ax_value, node_attrs::parse_enabled},
     };
     use accessibility_sys::{
         AXUIElementCopyAttributeValue, AXUIElementCopyAttributeValues,
@@ -100,16 +100,13 @@ mod imp {
             .collect();
 
         let get = |i: usize| items.get(i).and_then(|v| v.clone());
-        NodeAttrs::with_enabled_default(
-            NodeAttrs {
-                role: get(0),
-                title: get(1),
-                description: get(2),
-                value: get(3),
-                enabled: true,
-            },
-            get(4),
-        )
+        NodeAttrs {
+            role: get(0),
+            title: get(1),
+            description: get(2),
+            value: get(3),
+            enabled: parse_enabled(get(4)),
+        }
     }
 
     fn fetch_node_attrs_slow(el: &AXElement) -> NodeAttrs {

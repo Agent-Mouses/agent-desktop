@@ -17,7 +17,7 @@ pub(crate) fn list_apps() -> Vec<AppInfo> {
     );
     let mut apps = list_apps_from_sources(workspace, visible, process);
     if apps.is_empty() {
-        let fallback = apps_from_visible_windows();
+        let fallback = window_inventory::visible_apps();
         tracing::debug!(
             fallback_count = fallback.len(),
             "system: app inventory visible-window fallback"
@@ -29,15 +29,13 @@ pub(crate) fn list_apps() -> Vec<AppInfo> {
 }
 
 pub(crate) fn list_windows(filter: &WindowFilter) -> Vec<WindowInfo> {
-    let mut workspace_apps_cache = None;
-    let mut process_apps_cache = None;
     window_inventory::list_windows(filter, |app_name, visible_apps| {
-        let workspace_apps = workspace_apps_cache.get_or_insert_with(workspace_apps::list_apps);
-        app_for_name_from_sources(app_name, workspace_apps.clone(), visible_apps, || {
-            process_apps_cache
-                .get_or_insert_with(process_apps::list_apps)
-                .clone()
-        })
+        app_for_name_from_sources(
+            app_name,
+            workspace_apps::list_apps(),
+            visible_apps,
+            process_apps::list_apps,
+        )
     })
 }
 
@@ -71,29 +69,6 @@ fn list_apps_from_sources(
 ) -> Vec<AppInfo> {
     let mut apps = merge_primary_sources(workspace, visible);
     merge_apps(&mut apps, process);
-    apps
-}
-
-fn apps_from_visible_windows() -> Vec<AppInfo> {
-    let filter = WindowFilter {
-        app: None,
-        focused_only: false,
-    };
-    apps_from_windows(window_inventory::list_windows(&filter, |_, _| None))
-}
-
-fn apps_from_windows(windows: Vec<WindowInfo>) -> Vec<AppInfo> {
-    let mut apps = Vec::new();
-    let mut seen_pids = std::collections::HashSet::new();
-    for window in windows {
-        if seen_pids.insert(window.pid) {
-            apps.push(AppInfo {
-                name: window.app,
-                pid: window.pid,
-                bundle_id: None,
-            });
-        }
-    }
     apps
 }
 

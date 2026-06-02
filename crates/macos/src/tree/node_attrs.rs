@@ -7,11 +7,8 @@ pub(crate) struct NodeAttrs {
     pub(crate) enabled: bool,
 }
 
-impl NodeAttrs {
-    pub(crate) fn with_enabled_default(mut attrs: Self, enabled: Option<String>) -> Self {
-        attrs.enabled = enabled.map(|s| s == "true").unwrap_or(true);
-        attrs
-    }
+pub(crate) fn parse_enabled(enabled: Option<String>) -> bool {
+    enabled.map(|s| s == "true").unwrap_or(true)
 }
 
 #[cfg(test)]
@@ -20,29 +17,21 @@ mod tests {
 
     #[test]
     fn enabled_defaults_to_true_when_missing() {
-        let attrs = NodeAttrs::with_enabled_default(NodeAttrs::default(), None);
-
-        assert!(attrs.enabled);
+        assert!(parse_enabled(None));
     }
 
     #[test]
     fn enabled_accepts_true_string() {
-        let attrs = NodeAttrs::with_enabled_default(NodeAttrs::default(), Some("true".into()));
-
-        assert!(attrs.enabled);
+        assert!(parse_enabled(Some("true".into())));
     }
 
     #[test]
     fn enabled_rejects_false_string() {
-        let attrs = NodeAttrs::with_enabled_default(NodeAttrs::default(), Some("false".into()));
-
-        assert!(!attrs.enabled);
+        assert!(!parse_enabled(Some("false".into())));
     }
 
     #[test]
     fn enabled_rejects_unknown_string() {
-        let attrs = NodeAttrs::with_enabled_default(NodeAttrs::default(), Some("x".into()));
-
-        assert!(!attrs.enabled);
+        assert!(!parse_enabled(Some("x".into())));
     }
 }

@@ -130,20 +130,6 @@ fn app_for_name_from_sources_uses_visible_entries_without_process_lookup() {
 }
 
 #[test]
-fn apps_from_windows_deduplicates_visible_window_apps() {
-    let apps = apps_from_windows(vec![
-        window("Finder", 10, "Documents", 1),
-        window("Finder", 10, "Downloads", 2),
-        window("Mail", 11, "Inbox", 3),
-    ]);
-
-    assert_eq!(
-        apps.iter().map(|app| app.name.as_str()).collect::<Vec<_>>(),
-        vec!["Finder", "Mail"]
-    );
-}
-
-#[test]
 fn sort_apps_orders_by_name_then_pid() {
     let mut apps = vec![app("Terminal", 3), app("Finder", 2), app("Finder", 1)];
 
@@ -153,15 +139,4 @@ fn sort_apps_orders_by_name_then_pid() {
         apps.iter().map(|app| app.pid).collect::<Vec<_>>(),
         vec![1, 2, 3]
     );
-}
-
-fn window(app_name: &str, pid: i32, title: &str, window_number: i64) -> WindowInfo {
-    WindowInfo {
-        id: format!("w-{window_number}"),
-        title: title.to_string(),
-        app: app_name.to_string(),
-        pid,
-        bounds: None,
-        is_focused: false,
-    }
 }
